@@ -1,0 +1,535 @@
+<!-- SIDEBAR - Law Firm Portal with Maroon Theme -->
+<div class="sidebar">
+    <div class="sidebar-header">
+        <!-- Real Logo -->
+        <img src="/images/bautista-law-logo.png" 
+             alt="Bautista Law Office Logo" 
+             class="sidebar-logo"
+             onerror="this.src='https://via.placeholder.com/58?text=BL';">
+        
+        <h2>BAUTISTA LAW<br><span>OFFICE PORTAL</span></h2>
+    </div>
+    
+    <div class="sidebar-nav">
+        <a href="/dashboard" class="<%= currentPage === 'dashboard' ? 'active' : '' %>">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="#" onclick="openModal()">
+            <i class="fas fa-user-plus"></i>
+            <span>Add User</span>
+        </a>
+        <a href="/cases" class="<%= currentPage === 'cases' ? 'active' : '' %>">
+            <i class="fas fa-folder-open"></i>
+            <span>Cases</span>
+        </a>
+        <a href="/hearings" class="<%= currentPage === 'hearings' ? 'active' : '' %>">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Hearings</span>
+        </a>
+        <a href="/court-orders" class="<%= currentPage === 'court-orders' ? 'active' : '' %>">
+            <i class="fas fa-file-alt"></i>
+            <span>Court Orders</span>
+        </a>
+        <a href="/analytics" class="<%= currentPage === 'analytics' ? 'active' : '' %>">
+            <i class="fas fa-chart-line"></i>
+            <span>Analytics</span>
+        </a>
+    </div>
+    
+    <div class="logout-link">
+        <a href="/logout">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </a>
+    </div>
+</div>
+
+<!-- Add Staff Modal -->
+<div class="modal" id="userModal">
+    <div class="modal-content" style="width: 700px; max-width: 95%;">
+        <div class="modal-header">
+            <h3><i class="fas fa-gavel" style="margin-right: 8px;"></i> Register Legal Staff</h3>
+            <span class="close" onclick="closeModal()">&times;</span>
+        </div>
+        <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+            <form method="POST" action="/staff/register" id="addUserForm">
+                <!-- Personal Information -->
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: #7a2e3a; margin-bottom: 15px; border-bottom: 2px solid #c9865e; padding-bottom: 5px;">
+                        <i class="fas fa-user-circle"></i> Personal Information
+                    </h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group-modal">
+                            <label><i class="fas fa-user"></i> Full Name *</label>
+                            <input type="text" name="full_name" placeholder="e.g., Juan M. Dela Cruz" required>
+                        </div>
+                        <div class="form-group-modal">
+                            <label><i class="fas fa-id-card"></i> Username *</label>
+                            <input type="text" name="username" placeholder="e.g., juan.delacruz" required>
+                        </div>
+                        <div class="form-group-modal">
+                            <label><i class="fas fa-envelope"></i> Email Address *</label>
+                            <input type="email" name="email" placeholder="juan@bautistalaw.com" required>
+                        </div>
+                        <div class="form-group-modal">
+                            <label><i class="fas fa-phone"></i> Phone Number</label>
+                            <input type="text" name="phone" placeholder="+63 912 345 6789">
+                        </div>
+                        <div class="form-group-modal" style="grid-column: span 2;">
+                            <label><i class="fas fa-map-marker-alt"></i> Address</label>
+                            <textarea name="address" rows="2" placeholder="Office or home address" style="width: 100%; padding: 10px; border: 1.5px solid #e3e2dc; border-radius: 12px;"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Employment Details -->
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: #7a2e3a; margin-bottom: 15px; border-bottom: 2px solid #c9865e; padding-bottom: 5px;">
+                        <i class="fas fa-briefcase"></i> Employment Details
+                    </h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group-modal">
+                            <label><i class="fas fa-tag"></i> Position *</label>
+                            <select name="position" required style="width: 100%; padding: 12px; border: 1.5px solid #e3e2dc; border-radius: 12px;">
+                                <option value="">Select Position</option>
+                                <option value="Attorney">Attorney / Lawyer</option>
+                                <option value="Paralegal">Paralegal</option>
+                                <option value="Legal Assistant">Legal Assistant</option>
+                                <option value="Admin Staff">Admin Staff</option>
+                                <option value="Secretary">Secretary</option>
+                                <option value="Accountant">Accountant</option>
+                                <option value="IT Staff">IT Staff</option>
+                            </select>
+                        </div>
+                        <div class="form-group-modal">
+                            <label><i class="fas fa-building"></i> Department</label>
+                            <select name="department" style="width: 100%; padding: 12px; border: 1.5px solid #e3e2dc; border-radius: 12px;">
+                                <option value="">Select Department</option>
+                                <option value="Litigation">Litigation</option>
+                                <option value="Corporate Law">Corporate Law</option>
+                                <option value="Family Law">Family Law</option>
+                                <option value="Criminal Law">Criminal Law</option>
+                                <option value="Administration">Administration</option>
+                                <option value="Finance">Finance</option>
+                            </select>
+                        </div>
+                        <div class="form-group-modal">
+                            <label><i class="fas fa-certificate"></i> License/PRC Number</label>
+                            <input type="text" name="license_number" placeholder="For attorneys only">
+                        </div>
+                        <div class="form-group-modal">
+                            <label><i class="fas fa-calendar"></i> Hire Date</label>
+                            <input type="date" name="hire_date">
+                        </div>
+                        <div class="form-group-modal">
+                            <label><i class="fas fa-toggle-on"></i> Status</label>
+                            <select name="status" style="width: 100%; padding: 12px; border: 1.5px solid #e3e2dc; border-radius: 12px;">
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                                <option value="On Leave">On Leave</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Security -->
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: #7a2e3a; margin-bottom: 15px; border-bottom: 2px solid #c9865e; padding-bottom: 5px;">
+                        <i class="fas fa-lock"></i> Account Security
+                    </h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group-modal">
+                            <label><i class="fas fa-key"></i> Password *</label>
+                            <input type="password" name="password" id="modalPassword" placeholder="Minimum 6 characters" required>
+                        </div>
+                        <div class="form-group-modal">
+                            <label><i class="fas fa-check-circle"></i> Confirm Password *</label>
+                            <input type="password" name="confirm_password" id="modalConfirmPassword" placeholder="Re-enter password" required>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-save" type="submit">
+                    <i class="fas fa-save"></i> Register Staff Member
+                </button>
+                <div class="text-muted">
+                    <i class="fas fa-shield-alt"></i> All information will be encrypted and secured
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+/* ========= SIDEBAR MAROON THEME STYLES ========= */
+.sidebar {
+    width: 280px;
+    background: linear-gradient(180deg, #6a1e2c 0%, #4a1520 100%);
+    color: #fff6ea;
+    padding: 28px 20px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 6px 0 28px rgba(90, 25, 40, 0.2);
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(221, 184, 120, 0.35);
+}
+
+.sidebar-logo {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #ffffff;
+    padding: 3px;
+    border: 3px solid #ffffff;
+    box-shadow: 
+        0 4px 12px -4px rgba(0,0,0,0.35),
+        0 0 0 4px #6a1e2c;
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+}
+
+.sidebar-logo:hover {
+    transform: scale(1.08);
+}
+
+.sidebar-header h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    line-height: 1.2;
+    color: #fbecca;
+    margin: 0;
+}
+
+.sidebar-header span {
+    font-size: 0.7rem;
+    opacity: 0.85;
+    display: block;
+    font-weight: 400;
+}
+
+.sidebar-nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.sidebar a {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    color: #f3e9db;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    border-radius: 14px;
+    transition: all 0.25s ease;
+    margin: 2px 0;
+}
+
+.sidebar a i {
+    width: 24px;
+    font-size: 1.2rem;
+    text-align: center;
+}
+
+.sidebar a:hover {
+    background: rgba(224, 188, 140, 0.2);
+    color: #fff2df;
+    transform: translateX(5px);
+}
+
+.sidebar a.active {
+    background: #c6956b;
+    color: #3f0f1a;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+.sidebar a.active i {
+    color: #3f0f1a;
+}
+
+.logout-link {
+    margin-top: auto;
+    border-top: 1px solid rgba(224, 188, 140, 0.25);
+    padding-top: 20px;
+}
+
+.logout-link a {
+    color: #f3d9b5;
+}
+
+.logout-link a:hover {
+    background: rgba(190, 80, 70, 0.18);
+    color: #ffcfaa;
+}
+
+/* ========= MODAL MAROON THEME ========= */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(60, 30, 36, 0.6);
+    backdrop-filter: blur(6px);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 36px;
+    padding: 0;
+    overflow: hidden;
+    box-shadow: 0 35px 55px -20px rgba(80, 25, 38, 0.45);
+}
+
+.modal-header {
+    background: #60212e;
+    padding: 20px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+}
+
+.modal-header h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: -0.2px;
+}
+
+.close {
+    font-size: 28px;
+    cursor: pointer;
+    background: rgba(255,255,255,0.12);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 30px;
+    transition: all 0.2s;
+}
+
+.close:hover {
+    background: rgba(255,255,255,0.3);
+    transform: scale(1.05);
+}
+
+.modal-body {
+    padding: 28px 28px 32px;
+}
+
+.form-group-modal {
+    margin-bottom: 22px;
+}
+
+.form-group-modal label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.8rem;
+    margin-bottom: 6px;
+    color: #5e3340;
+    letter-spacing: 0.3px;
+}
+
+.form-group-modal input, 
+.form-group-modal select, 
+.form-group-modal textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid #e5dbd2;
+    border-radius: 28px;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+    background: #fefdfa;
+}
+
+.form-group-modal textarea {
+    border-radius: 20px;
+    resize: vertical;
+}
+
+.form-group-modal input:focus,
+.form-group-modal select:focus,
+.form-group-modal textarea:focus {
+    outline: none;
+    border-color: #9e4a5c;
+    box-shadow: 0 0 0 3px rgba(158, 74, 92, 0.15);
+}
+
+.btn-save {
+    width: 100%;
+    background: linear-gradient(95deg, #752634, #511b26);
+    padding: 14px;
+    border: none;
+    border-radius: 44px;
+    font-weight: 700;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transition: all 0.2s;
+    margin-top: 12px;
+}
+
+.btn-save:hover {
+    background: #5f1f2d;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(96, 33, 48, 0.3);
+}
+
+.text-muted {
+    color: #9e8679;
+    font-size: 0.75rem;
+    margin-top: 16px;
+    text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 780px) {
+    .sidebar {
+        width: 90px;
+        padding: 20px 12px;
+    }
+    .sidebar-header h2 span, 
+    .sidebar-header h2 br {
+        display: none;
+    }
+    .sidebar-header h2 {
+        font-size: 0.9rem;
+    }
+    .sidebar a span {
+        display: none;
+    }
+    .sidebar a i {
+        margin: 0 auto;
+        font-size: 1.4rem;
+    }
+    .sidebar a {
+        justify-content: center;
+        padding: 12px 0;
+    }
+    .sidebar-logo {
+        width: 48px;
+        height: 48px;
+    }
+}
+</style>
+
+<script>
+function openModal() {
+    const modal = document.getElementById("userModal");
+    if(modal) {
+        modal.style.display = "flex";
+        document.body.style.overflow = "hidden";
+    }
+}
+
+function closeModal() {
+    const modal = document.getElementById("userModal");
+    if(modal) {
+        modal.style.display = "none";
+        document.body.style.overflow = "auto";
+    }
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById("userModal");
+    if (event.target === modal) {
+        closeModal();
+    }
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === "Escape") {
+        const modal = document.getElementById("userModal");
+        if (modal && modal.style.display === "flex") {
+            closeModal();
+        }
+    }
+});
+
+// Form Validation
+const addForm = document.getElementById('addUserForm');
+if(addForm) {
+    addForm.addEventListener('submit', function(e) {
+        const password = document.getElementById('modalPassword');
+        const confirm = document.getElementById('modalConfirmPassword');
+        const username = addForm.querySelector('input[name="username"]');
+        const fullname = addForm.querySelector('input[name="full_name"]');
+        const email = addForm.querySelector('input[name="email"]');
+        
+        const existing = document.querySelector('.modal-alert-fly');
+        if(existing) existing.remove();
+        
+        if(!fullname.value.trim()) {
+            e.preventDefault();
+            showModalAlert('Please enter full name.', fullname);
+            return false;
+        }
+        if(!username.value.trim()) {
+            e.preventDefault();
+            showModalAlert('Please enter a username.', username);
+            return false;
+        }
+        if(!email.value.trim()) {
+            e.preventDefault();
+            showModalAlert('Please enter an email address.', email);
+            return false;
+        }
+        if(password.value.trim().length < 6) {
+            e.preventDefault();
+            showModalAlert('Password must be at least 6 characters.', password);
+            return false;
+        }
+        if(password.value !== confirm.value) {
+            e.preventDefault();
+            showModalAlert('Passwords do not match!', confirm);
+            return false;
+        }
+    });
+    
+    function showModalAlert(msg, inputField) {
+        const existing = document.querySelector('.modal-alert-fly');
+        if(existing) existing.remove();
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'modal-alert-fly';
+        alertDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${msg}`;
+        const modalBody = document.querySelector('#userModal .modal-body');
+        modalBody.insertBefore(alertDiv, modalBody.firstChild);
+        inputField.style.borderColor = '#bc5a4a';
+        setTimeout(() => {
+            if(alertDiv) alertDiv.remove();
+            inputField.style.borderColor = '#e5dbd2';
+        }, 3000);
+        inputField.focus();
+    }
+}
+</script>

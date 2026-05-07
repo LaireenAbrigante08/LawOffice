@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <%- include('partials/head') %>
+    <title>Bautista Law Office | Hearings Calendar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            background: linear-gradient(135deg, #eef2f0 0%, #e0e8e3 100%);
+            display: flex;
+            overflow: hidden;
+        }
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #1a3a32 0%, #0f2c24 100%);
+            color: #fef5e7;
+            padding: 28px 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.08);
+            z-index: 10;
+        }
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(219, 184, 107, 0.3);
+        }
+        .sidebar-icon {
+            background: #dbb86b;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .sidebar-icon i { color: #1a3a32; }
+        .sidebar-header h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #f7eac5;
+        }
+        .sidebar-header span { font-size: 0.7rem; opacity: 0.7; display: block; }
+        .sidebar-nav { flex: 1; display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            color: #e2e6dc;
+            text-decoration: none;
+            font-weight: 500;
+            border-radius: 14px;
+            transition: all 0.25s ease;
+        }
+        .sidebar a i { width: 24px; font-size: 1.2rem; }
+        .sidebar a:hover { background: rgba(219, 184, 107, 0.18); color: #ffefcf; transform: translateX(5px); }
+        .sidebar a.active { background: #dbb86b; color: #1e2f28; font-weight: 600; }
+        .sidebar a.active i { color: #1a3a32; }
+        .logout-link { margin-top: auto; border-top: 1px solid rgba(219, 184, 107, 0.2); padding-top: 20px; }
+        .logout-link a { color: #f0cf9a; }
+
+        .main { flex: 1; padding: 30px 36px; overflow-y: auto; }
+        .page-header { margin-bottom: 32px; }
+        .page-header h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #1e4238;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .page-header h1 i { background: #dbb86b20; padding: 10px; border-radius: 50%; color: #b8863f; }
+        .page-desc { color: #5a6e64; margin-top: 8px; border-left: 3px solid #dbb86b; padding-left: 16px; }
+
+        .action-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; flex-wrap: wrap; gap: 16px; }
+        .btn-primary {
+            background: linear-gradient(95deg, #2a5a48, #1e4035);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 40px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+        .btn-primary:hover { transform: translateY(-2px); }
+
+        .filter-group { display: flex; gap: 12px; }
+        .filter-select {
+            padding: 10px 16px;
+            border-radius: 40px;
+            border: 1.5px solid #e3e2dc;
+            background: white;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .calendar-grid {
+            background: white;
+            border-radius: 28px;
+            padding: 24px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+            margin-bottom: 28px;
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        .calendar-nav button {
+            background: none;
+            border: none;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: #2a5a48;
+            margin: 0 8px;
+            font-weight: 500;
+        }
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            font-weight: 600;
+            color: #8ba392;
+            margin-bottom: 12px;
+        }
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+        .calendar-day {
+            min-height: 200px;
+            border: 1px solid #f0ece4;
+            border-radius: 16px;
+            padding: 10px;
+            background: #fefefc;
+            transition: 0.2s;
+            cursor: pointer;
+            overflow-y: auto;
+            position: relative;
+        }
+        .calendar-day:hover { 
+            background: #faf6ed; 
+            border-color: #dbb86b; 
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .calendar-day.today {
+            background: linear-gradient(135deg, #fff9e8, #fff3e0);
+            border: 2px solid #dbb86b;
+            box-shadow: 0 2px 8px rgba(219, 184, 107, 0.3);
+        }
+        .calendar-day.today .day-number {
+            color: #b8863f;
+            font-weight: 800;
+        }
+        .calendar-day.has-hearing {
+            background: #f0f7f3;
+            border-left: 4px solid #2a5a48;
+        }
+        .day-number { 
+            font-weight: 700; 
+            color: #2c5a4a; 
+            margin-bottom: 8px;
+            font-size: 1rem;
+            border-bottom: 1px solid #f0ece4;
+            padding-bottom: 4px;
+            display: inline-block;
+            width: 100%;
+        }
+        .hearing-item {
+            background: #e8f3ed;
+            padding: 8px 10px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            margin-top: 8px;
+            color: #1a5a44;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid #2a5a48;
+            word-wrap: break-word;
+            white-space: normal;
+            line-height: 1.3;
+        }
+        .hearing-item:hover {
+            background: #dbb86b;
+            color: white;
+            transform: translateX(3px);
+            border-left-color: white;
+        }
+        .hearing-item i {
+            margin-right: 6px;
+            font-size: 0.65rem;
+        }
+        .hearing-time {
+            font-size: 0.6rem;
+            color: #8ba392;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .hearing-item:hover .hearing-time {
+            color: white;
+        }
+        .more-indicator {
+            font-size: 0.65rem;
+            color: #dbb86b;
+            margin-top: 6px;
+            text-align: center;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 8px;
+            background: #faf6ed;
+        }
+        .more-indicator:hover {
+            background: #dbb86b;
+            color: white;
+        }
+        .no-hearings {
+            font-size: 0.7rem;
+            color: #cbd5d0;
+            text-align: center;
+            margin-top: 30px;
+            font-style: italic;
+        }
+        .month-indicator {
+            background: #dbb86b20;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: #2a5a48;
+        }
+
+        .hearings-list-container {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            text-align: left;
+            padding: 18px 20px;
+            background: #faf8f3;
+            font-weight: 600;
+            color: #2c5a4a;
+        }
+        td { padding: 16px 20px; border-bottom: 1px solid #f0ece4; }
+        .status-scheduled { background: #e3f5ec; color: #1e6f4c; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+        .status-completed { background: #ececec; color: #6b6b6b; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; display: inline-block; }
+        .status-cancelled { background: #ffe6e5; color: #bc5a4a; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; display: inline-block; }
+        .action-icons i { margin: 0 6px; cursor: pointer; color: #9aa99f; transition: 0.2s; }
+        .action-icons i:hover { color: #b8863f; }
+        .action-icons .fa-eye:hover { color: #2c5a4a; }
+        .action-icons .fa-trash-alt:hover { color: #dc3545; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(26, 38, 32, 0.7);
+            backdrop-filter: blur(8px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-content {
+            background: white;
+            border-radius: 32px;
+            width: 600px;
+            max-width: 92%;
+            overflow: hidden;
+            animation: slideUp 0.3s ease;
+        }
+        .modal-header { 
+            background: linear-gradient(135deg, #1e3f36, #14332a);
+            padding: 20px 24px; 
+            display: flex; 
+            justify-content: space-between; 
+            color: white; 
+            align-items: center;
+        }
+        .modal-header h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        .close { 
+            font-size: 28px; 
+            cursor: pointer; 
+            background: rgba(255,255,255,0.15); 
+            width: 36px; height: 36px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            border-radius: 50%; 
+            transition: all 0.2s;
+        }
+        .close:hover { background: rgba(255,255,255,0.3); transform: rotate(90deg); }
+        .modal-body { padding: 28px; max-height: 60vh; overflow-y: auto; }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-group label { 
+            display: block; 
+            font-weight: 600; 
+            font-size: 0.85rem; 
+            margin-bottom: 8px; 
+            color: #2c5a4a;
+        }
+        .form-group label i { margin-right: 6px; color: #dbb86b; }
+        .form-group input, .form-group select {
+            width: 100%; 
+            padding: 12px 16px; 
+            border: 1.5px solid #e8e4dc; 
+            border-radius: 16px;
+            font-family: 'Inter', sans-serif;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #dbb86b;
+            box-shadow: 0 0 0 3px rgba(219, 184, 107, 0.2);
+        }
+        
+        .btn-save { 
+            background: linear-gradient(95deg, #2a5a48, #1e4035);
+            width: 100%; 
+            padding: 14px; 
+            border: none; 
+            border-radius: 40px; 
+            color: white; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+        .btn-save:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(42, 90, 72, 0.3); }
+
+        .detail-view {
+            background: linear-gradient(145deg, #fefefc, #faf8f3);
+            border-radius: 24px;
+            padding: 8px;
+        }
+        .detail-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        .detail-header {
+            background: linear-gradient(135deg, #dbb86b20, #e8ddc020);
+            padding: 20px;
+            border-bottom: 2px solid #dbb86b;
+        }
+        .detail-header h4 {
+            color: #1e4238;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.3rem;
+            margin: 0;
+            word-break: break-word;
+        }
+        .detail-section { padding: 20px; }
+        .detail-row {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px dashed #eee8dd;
+        }
+        .detail-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .detail-icon {
+            width: 42px;
+            height: 42px;
+            background: #f5f0e6;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            color: #dbb86b;
+            font-size: 1.2rem;
+        }
+        .detail-content { flex: 1; }
+        .detail-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: #a8bfb0;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+        .detail-value {
+            font-weight: 600;
+            color: #1e4238;
+            margin-top: 5px;
+            font-size: 1rem;
+            word-break: break-word;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .status-scheduled-badge { background: #e3f5ec; color: #1e6f4c; }
+        .status-completed-badge { background: #ececec; color: #6b6b6b; }
+        .status-cancelled-badge { background: #ffe6e5; color: #bc5a4a; }
+        
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .action-buttons button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-edit-modal {
+            background: #dbb86b;
+            color: #1e3f36;
+        }
+        .btn-edit-modal:hover { background: #c9a855; transform: translateY(-2px); }
+        .btn-close-modal {
+            background: #e8e4dc;
+            color: #5a6e64;
+        }
+        .btn-close-modal:hover { background: #ddd6ca; }
+
+        /* Scrollbar */
+        .calendar-day::-webkit-scrollbar {
+            width: 4px;
+        }
+        .calendar-day::-webkit-scrollbar-track {
+            background: #f0ece4;
+            border-radius: 4px;
+        }
+        .calendar-day::-webkit-scrollbar-thumb {
+            background: #dbb86b;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 780px) { 
+            .sidebar { width: 90px; } 
+            .sidebar a span { display: none; } 
+            .calendar-day { min-height: 140px; font-size: 0.7rem; } 
+            .detail-row { flex-direction: column; }
+            .detail-icon { margin-bottom: 10px; }
+            .hearing-item { font-size: 0.6rem; padding: 5px; }
+        }
+    </style>
+</head>
+<body>
+    <%- include('partials/sidebar', { currentPage: 'hearings' }) %>
+
+    <div class="main">
+        <div class="page-header">
+            <h1><i class="fas fa-calendar-check"></i> Hearings Calendar</h1>
+            <div class="page-desc">Court schedules, hearing dates, and case appearances</div>
+        </div>
+
+        <% if (typeof success !== 'undefined' && success) { %>
+            <div style="background: #e3f5ec; color: #1e6f4c; padding: 12px 18px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #1e6f4c;">
+                <i class="fas fa-check-circle"></i> <%= success %>
+            </div>
+        <% } %>
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div style="background: #fff1f0; color: #c95b48; padding: 12px 18px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #c95b48;">
+                <i class="fas fa-exclamation-circle"></i> <%= error %>
+            </div>
+        <% } %>
+
+        <div class="action-bar">
+            <button class="btn-primary" onclick="openAddHearingModal()">
+                <i class="fas fa-plus"></i> Schedule Hearing
+            </button>
+            <div class="filter-group">
+                <select class="filter-select" id="statusFilter" onchange="filterHearings()">
+                    <option value="all">All Status</option>
+                    <option value="Scheduled">Scheduled</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+                <input type="text" class="filter-select" id="searchHearing" placeholder="Search case..." onkeyup="filterHearings()" style="width: 180px;">
+            </div>
+        </div>
+
+        <div class="calendar-grid">
+            <div class="calendar-header">
+                <h3 style="color:#2c5a4a;">
+                    <i class="fas fa-calendar-alt"></i> 
+                    <span id="currentMonthYear"></span>
+                    <span id="monthHearingBadge" class="month-indicator" style="margin-left: 10px;"></span>
+                </h3>
+                <div class="calendar-nav">
+                    <button onclick="prevMonth()"><i class="fas fa-chevron-left"></i> Prev</button>
+                    <button onclick="goToday()">Today</button>
+                    <button onclick="nextMonth()">Next <i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+            <div class="weekdays">
+                <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+            </div>
+            <div class="calendar-days" id="calendarDays"></div>
+        </div>
+
+        <div class="hearings-list-container">
+            <table id="hearingsTable">
+                <thead>
+                    <tr><th>Case Title</th><th>Hearing Date</th><th>Time</th><th>Court/Branch</th><th>Judge</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                    <% if (hearings && hearings.length > 0) { %>
+                        <% hearings.forEach(function(h) { 
+                            let title = (h.case_title || h.caseTitle || '').replace(/"/g, '&quot;');
+                        %>
+                            <tr data-hearing-id="<%= h.id %>" data-case-id="<%= h.case_id %>" data-date="<%= h.hearing_date %>" data-time="<%= h.hearing_time %>" data-court="<%= h.court_room || '' %>" data-judge="<%= h.judge_name || '' %>" data-status="<%= h.status || 'Scheduled' %>" data-case-title="<%= title %>">
+                                <td><%= h.case_title || h.caseTitle %></td>
+                                <td><%= h.hearing_date %></td>
+                                <td><%= h.hearing_time %></td>
+                                <td><%= h.court_room || '—' %></td>
+                                <td><%= h.judge_name || '—' %></td>
+                                <td><span class="status-<%= (h.status || 'Scheduled').toLowerCase() %>"><%= h.status || 'Scheduled' %></span></td>
+                                <td class="action-icons">
+                                    <i class="fas fa-eye" onclick="viewHearingDetails(this)" title="View Details"></i>
+                                    <i class="fas fa-edit" onclick="editHearing(this)" title="Edit"></i> 
+                                    <i class="fas fa-trash-alt" onclick="deleteHearing('<%= h.id %>')" title="Delete"></i>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr><td colspan="7" style="text-align:center; padding: 40px;">No hearings scheduled</td></tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal" id="hearingModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle"><i class="fas fa-calendar-plus"></i> Schedule Hearing</h3>
+                <span class="close" onclick="closeHearingModal()">×</span>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentDate = new Date();
+        
+        // Store hearings data for calendar display
+        let hearingsList = [];
+        <% if (hearings && hearings.length > 0) { %>
+            hearingsList = [
+                <% hearings.forEach(function(h) { 
+                    let title = (h.case_title || h.caseTitle || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+                %>
+                    {
+                        id: "<%= h.id %>",
+                        date: "<%= h.hearing_date %>",
+                        title: "<%= title %>",
+                        time: "<%= h.hearing_time %>",
+                        status: "<%= h.status || 'Scheduled' %>"
+                    },
+                <% }); %>
+            ];
+        <% } %>
+
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const today = new Date();
+            const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+            
+            // Update month/year display
+            document.getElementById('currentMonthYear').innerText = new Date(year, month).toLocaleString('default', { month: 'long', year: 'numeric' });
+            
+            // Check if there are hearings this month
+            const hearingsThisMonth = hearingsList.filter(h => {
+                const hearingDate = new Date(h.date);
+                return hearingDate.getFullYear() === year && hearingDate.getMonth() === month;
+            });
+            
+            const badge = document.getElementById('monthHearingBadge');
+            if (hearingsThisMonth.length > 0) {
+                badge.innerHTML = `<i class="fas fa-gavel"></i> ${hearingsThisMonth.length} hearing(s) this month`;
+                badge.style.display = 'inline-block';
+            } else {
+                badge.innerHTML = '';
+                badge.style.display = 'none';
+            }
+            
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const calendarDiv = document.getElementById('calendarDays');
+            calendarDiv.innerHTML = '';
+            
+            // Empty cells for days before month starts
+            for (let i = 0; i < firstDay; i++) {
+                calendarDiv.innerHTML += '<div class="calendar-day"></div>';
+            }
+
+            // Render each day of the month
+            for (let d = 1; d <= daysInMonth; d++) {
+                let dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                let hearingsOnDate = hearingsList.filter(h => h.date === dateStr);
+                
+                let isToday = dateStr === todayStr;
+                let hasHearing = hearingsOnDate.length > 0;
+                let todayClass = isToday ? 'today' : '';
+                let hasHearingClass = hasHearing ? 'has-hearing' : '';
+                
+                let hearingsHtml = '';
+                let maxDisplay = 3;
+                
+                for (let i = 0; i < Math.min(hearingsOnDate.length, maxDisplay); i++) {
+                    let hearing = hearingsOnDate[i];
+                    let fullTitle = hearing.title;
+                    // Truncate only for display but show full on hover
+                    let displayTitle = fullTitle.length > 60 ? fullTitle.substring(0, 57) + '...' : fullTitle;
+                    
+                    hearingsHtml += `
+                        <div class="hearing-item" onclick="event.stopPropagation(); viewHearingByTitle('${hearing.title.replace(/'/g, "\\'")}', '${dateStr}')" title="${fullTitle}">
+                            <i class="fas fa-gavel"></i> ${displayTitle}
+                            <div class="hearing-time"><i class="fas fa-clock"></i> ${hearing.time}</div>
+                        </div>
+                    `;
+                }
+                
+                if (hearingsOnDate.length > maxDisplay) {
+                    hearingsHtml += `<div class="more-indicator" onclick="event.stopPropagation(); filterByDate('${dateStr}')">
+                        <i class="fas fa-chevron-down"></i> +${hearingsOnDate.length - maxDisplay} more hearing(s)
+                    </div>`;
+                }
+                
+                if (!hasHearing) {
+                    hearingsHtml = '<div class="no-hearings"><i class="fas fa-calendar-day"></i> No hearings</div>';
+                }
+                
+                calendarDiv.innerHTML += `
+                    <div class="calendar-day ${todayClass} ${hasHearingClass}" onclick="selectDate('${dateStr}')">
+                        <div class="day-number">${d}</div>
+                        ${hearingsHtml}
+                    </div>`;
+            }
+        }
+
+        function viewHearingByTitle(caseTitle, date) {
+            // Find the hearing row by case title and date
+            let rows = document.querySelectorAll('#hearingsTable tbody tr');
+            for (let row of rows) {
+                if (row.cells[0]?.innerText === caseTitle && row.cells[1]?.innerText === date) {
+                    const eyeIcon = row.querySelector('.fa-eye');
+                    if (eyeIcon) viewHearingDetails(eyeIcon);
+                    break;
+                }
+            }
+        }
+
+        function filterByDate(date) {
+            selectDate(date);
+            closeHearingModal();
+        }
+
+        function viewHearingDetails(element) {
+            const row = element.closest('tr');
+            const caseTitle = row.cells[0].innerText;
+            const hearingDate = row.cells[1].innerText;
+            const hearingTime = row.cells[2].innerText;
+            const courtRoom = row.cells[3].innerText;
+            const judgeName = row.cells[4].innerText;
+            const status = row.cells[5].innerText;
+            const statusClass = status.toLowerCase();
+            
+            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-info-circle"></i> Hearing Details';
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <div class="detail-view">
+                    <div class="detail-card">
+                        <div class="detail-header">
+                            <h4><i class="fas fa-gavel"></i> ${caseTitle.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</h4>
+                            <p>Case hearing information</p>
+                        </div>
+                        <div class="detail-section">
+                            <div class="detail-row">
+                                <div class="detail-icon"><i class="fas fa-calendar-alt"></i></div>
+                                <div class="detail-content">
+                                    <div class="detail-label">Hearing Date</div>
+                                    <div class="detail-value">${hearingDate}</div>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-icon"><i class="fas fa-clock"></i></div>
+                                <div class="detail-content">
+                                    <div class="detail-label">Time</div>
+                                    <div class="detail-value">${hearingTime}</div>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-icon"><i class="fas fa-building"></i></div>
+                                <div class="detail-content">
+                                    <div class="detail-label">Court / Branch</div>
+                                    <div class="detail-value">${courtRoom || 'Not specified'}</div>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-icon"><i class="fas fa-user-graduate"></i></div>
+                                <div class="detail-content">
+                                    <div class="detail-label">Presiding Judge</div>
+                                    <div class="detail-value">${judgeName || 'Not assigned'}</div>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-icon"><i class="fas fa-flag-checkered"></i></div>
+                                <div class="detail-content">
+                                    <div class="detail-label">Status</div>
+                                    <div class="detail-value"><span class="status-badge status-${statusClass}-badge">${status}</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn-edit-modal" onclick="editHearingFromDetails('${row.getAttribute('data-hearing-id')}')"><i class="fas fa-edit"></i> Edit Hearing</button>
+                    <button class="btn-close-modal" onclick="closeHearingModal()"><i class="fas fa-times"></i> Close</button>
+                </div>
+            `;
+            document.getElementById('hearingModal').style.display = 'flex';
+        }
+
+        function openAddHearingModal() {
+            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-calendar-plus"></i> Schedule New Hearing';
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <form method="POST" action="/hearings/create" id="hearingForm">
+                    <div class="form-group">
+                        <label><i class="fas fa-gavel"></i> Case <span style="color:red;">*</span></label>
+                        <select name="case_id" required>
+                            <option value="">-- Select Case --</option>
+                            <% if (cases && cases.length > 0) { %>
+                                <% cases.forEach(function(c) { %>
+                                    <option value="<%= c.id %>"><%= (c.title || '').replace(/"/g, '&quot;') %> (<%= c.case_number %>)</option>
+                                <% }); %>
+                            <% } %>
+                        </select>
+                    </div>
+                    <div class="form-group"><label><i class="fas fa-calendar-day"></i> Hearing Date</label><input type="date" name="hearing_date" required></div>
+                    <div class="form-group"><label><i class="fas fa-clock"></i> Time</label><input type="time" name="hearing_time" required></div>
+                    <div class="form-group"><label><i class="fas fa-building"></i> Court/Branch</label><input type="text" name="court_room"></div>
+                    <div class="form-group"><label><i class="fas fa-user-graduate"></i> Presiding Judge</label><input type="text" name="judge_name"></div>
+                    <div class="form-group">
+                        <label><i class="fas fa-flag-checkered"></i> Status</label>
+                        <select name="status">
+                            <option value="Scheduled">Scheduled</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <button class="btn-save" type="submit">Save Hearing</button>
+                </form>
+            `;
+            document.getElementById('hearingModal').style.display = 'flex';
+        }
+
+        function editHearing(element) {
+            const row = element.closest('tr');
+            const hearingId = row.getAttribute('data-hearing-id');
+            const caseId = row.getAttribute('data-case-id');
+            const hearingDate = row.getAttribute('data-date');
+            const hearingTime = row.getAttribute('data-time');
+            const courtRoom = row.getAttribute('data-court');
+            const judgeName = row.getAttribute('data-judge');
+            const status = row.getAttribute('data-status');
+            
+            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Hearing';
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <form method="POST" action="/hearings/update/${hearingId}" id="editHearingForm">
+                    <div class="form-group">
+                        <label><i class="fas fa-gavel"></i> Case <span style="color:red;">*</span></label>
+                        <select name="case_id" required>
+                            <option value="">-- Select Case --</option>
+                            <% if (cases && cases.length > 0) { %>
+                                <% cases.forEach(function(c) { %>
+                                    <option value="<%= c.id %>" ${caseId == '<%= c.id %>' ? 'selected' : ''}><%= (c.title || '').replace(/"/g, '&quot;') %> (<%= c.case_number %>)</option>
+                                <% }); %>
+                            <% } %>
+                        </select>
+                    </div>
+                    <div class="form-group"><label><i class="fas fa-calendar-day"></i> Hearing Date</label><input type="date" name="hearing_date" value="${hearingDate}" required></div>
+                    <div class="form-group"><label><i class="fas fa-clock"></i> Time</label><input type="time" name="hearing_time" value="${hearingTime}" required></div>
+                    <div class="form-group"><label><i class="fas fa-building"></i> Court/Branch</label><input type="text" name="court_room" value="${courtRoom.replace(/"/g, '&quot;')}"></div>
+                    <div class="form-group"><label><i class="fas fa-user-graduate"></i> Presiding Judge</label><input type="text" name="judge_name" value="${judgeName.replace(/"/g, '&quot;')}"></div>
+                    <div class="form-group">
+                        <label><i class="fas fa-flag-checkered"></i> Status</label>
+                        <select name="status">
+                            <option value="Scheduled" ${status == 'Scheduled' ? 'selected' : ''}>Scheduled</option>
+                            <option value="Completed" ${status == 'Completed' ? 'selected' : ''}>Completed</option>
+                            <option value="Cancelled" ${status == 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                        </select>
+                    </div>
+                    <button class="btn-save" type="submit">Update Hearing</button>
+                </form>
+            `;
+            document.getElementById('hearingModal').style.display = 'flex';
+        }
+
+        function editHearingFromDetails(hearingId) {
+            const row = document.querySelector(`tr[data-hearing-id="${hearingId}"]`);
+            if (row) {
+                const editIcon = row.querySelector('.fa-edit');
+                if (editIcon) editHearing(editIcon);
+            }
+        }
+        
+        function deleteHearing(id) {
+            if (confirm('Are you sure you want to delete this hearing?')) {
+                window.location.href = `/hearings/delete/${id}`;
+            }
+        }
+        
+        function closeHearingModal() {
+            document.getElementById('hearingModal').style.display = 'none';
+        }
+
+        function filterHearings() {
+            let status = document.getElementById('statusFilter').value;
+            let search = document.getElementById('searchHearing').value.toLowerCase();
+            let rows = document.querySelectorAll('#hearingsTable tbody tr');
+            rows.forEach(row => {
+                if (row.cells.length < 6) return;
+                let statusCell = row.cells[5]?.innerText || '';
+                let caseCell = row.cells[0]?.innerText.toLowerCase() || '';
+                let matchStatus = status === 'all' || statusCell.includes(status);
+                let matchSearch = caseCell.includes(search);
+                row.style.display = matchStatus && matchSearch ? '' : 'none';
+            });
+        }
+        
+        function selectDate(date) { 
+            let rows = document.querySelectorAll('#hearingsTable tbody tr');
+            rows.forEach(row => {
+                let rowDate = row.cells[1]?.innerText || '';
+                row.style.display = rowDate === date ? '' : 'none';
+            });
+            closeHearingModal();
+        }
+        
+        function prevMonth() { 
+            currentDate.setMonth(currentDate.getMonth() - 1); 
+            renderCalendar(); 
+        }
+        
+        function nextMonth() { 
+            currentDate.setMonth(currentDate.getMonth() + 1); 
+            renderCalendar(); 
+        }
+        
+        function goToday() { 
+            currentDate = new Date(); 
+            renderCalendar(); 
+        }
+
+        function goToMonthWithHearings() {
+            if (hearingsList.length > 0) {
+                // Find the earliest hearing date
+                let earliestDate = new Date(hearingsList[0].date);
+                for (let h of hearingsList) {
+                    let d = new Date(h.date);
+                    if (d < earliestDate) earliestDate = d;
+                }
+                currentDate = new Date(earliestDate);
+                renderCalendar();
+                console.log('Navigated to month with hearings:', currentDate.toLocaleString('default', { month: 'long', year: 'numeric' }));
+            } else {
+                console.log('No hearings found in database. Please schedule a hearing.');
+            }
+        }
+
+        // Initial render
+        renderCalendar();
+        
+        // Auto-navigate to month with hearings if current month has none
+        setTimeout(() => {
+            const currentYear = currentDate.getFullYear();
+            const currentMonth = currentDate.getMonth();
+            const hasHearingsCurrentMonth = hearingsList.some(h => {
+                const hearingDate = new Date(h.date);
+                return hearingDate.getFullYear() === currentYear && hearingDate.getMonth() === currentMonth;
+            });
+            
+            if (!hasHearingsCurrentMonth && hearingsList.length > 0) {
+                goToMonthWithHearings();
+            }
+        }, 100);
+        
+        window.onclick = function(e) { 
+            if (e.target === document.getElementById('hearingModal')) closeHearingModal(); 
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<%- include('partials/head') %>
+<title>Bautista Law Office | Court Orders Management</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<style>
+    * { 
+        margin: 0; 
+        padding: 0; 
+        box-sizing: border-box; 
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        height: 100vh;
+        background: linear-gradient(135deg, #eef2f0 0%, #e0e8e3 100%);
+        display: flex;
+        overflow: hidden;
+    }
+
+    .sidebar {
+        width: 280px;
+        background: linear-gradient(180deg, #1a3a32 0%, #0f2c24 100%);
+        color: #fef5e7;
+        padding: 28px 20px;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.08);
+        z-index: 10;
+    }
+
+    .main { 
+        flex: 1; 
+        padding: 30px 36px; 
+        overflow-y: auto; 
+    }
+
+    .page-header { margin-bottom: 32px; }
+    .page-header h1 {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 2.2rem;
+        font-weight: 600;
+        color: #1e4238;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .page-header h1 i { 
+        background: #dbb86b20; 
+        padding: 10px; 
+        border-radius: 50%; 
+        color: #b8863f; 
+    }
+
+    .action-bar { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        margin-bottom: 28px; 
+        flex-wrap: wrap; 
+        gap: 16px; 
+    }
+
+    .filter-bar { display: flex; gap: 12px; flex-wrap: wrap; }
+
+    .filter-select {
+        padding: 10px 16px;
+        border-radius: 40px;
+        border: 1.5px solid #e3e2dc;
+        background: white;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .search-box {
+        display: flex;
+        gap: 10px;
+        background: white;
+        padding: 4px 16px;
+        border-radius: 44px;
+        align-items: center;
+    }
+    .search-box input { 
+        border: none; 
+        padding: 10px 0; 
+        width: 240px; 
+        outline: none; 
+    }
+
+    .btn-primary {
+        background: linear-gradient(95deg, #2a5a48, #1e4035);
+        border: none;
+        padding: 12px 24px;
+        border-radius: 40px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .btn-primary:hover { transform: translateY(-2px); }
+
+    .orders-table-container {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+    th {
+        text-align: left;
+        padding: 18px 20px;
+        background: #faf8f3;
+        font-weight: 600;
+        color: #2c5a4a;
+        border-bottom: 2px solid #e9e2d4;
+    }
+    td { 
+        padding: 16px 20px; 
+        border-bottom: 1px solid #f0ece4; 
+        color: #2d3e36; 
+    }
+    tr:hover { background: #fefcf7; }
+
+    .status-badge {
+        display: inline-block;
+        padding: 5px 12px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    .status-received { background: #e3f5ec; color: #1e6f4c; }
+    .status-complied { background: #d4f0f0; color: #0e6b6b; }
+    .status-appealed { background: #ffe6e6; color: #cc5555; }
+    .status-pending-action { background: #fff3e0; color: #c47a2e; }
+    .status-archived { background: #ececec; color: #6b6b6b; }
+
+    .order-type-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        background: #e8e0d0;
+        color: #8b6914;
+    }
+
+    .summary-cell {
+        max-width: 280px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .action-icons i { 
+        margin: 0 6px; 
+        cursor: pointer; 
+        color: #9aa99f; 
+        transition: color 0.2s ease;
+        font-size: 1.1rem;
+    }
+    .action-icons i:hover { color: #b8863f; }
+
+    /* ==================== FIXED MODAL STYLES ==================== */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(26, 38, 32, 0.65);
+        backdrop-filter: blur(8px);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 24px;
+        width: 620px;
+        max-width: 95%;
+        max-height: 92vh;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .modal-header {
+        background: #1e3f36;
+        padding: 20px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: white;
+        border-radius: 24px 24px 0 0;
+        flex-shrink: 0;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        font-family: 'Cormorant Garamond', serif;
+    }
+
+    .close {
+        font-size: 32px;
+        cursor: pointer;
+        background: rgba(255,255,255,0.15);
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.2s;
+    }
+    .close:hover {
+        background: rgba(255,255,255,0.3);
+        transform: rotate(90deg);
+    }
+
+    .modal-body {
+        padding: 28px;
+        overflow-y: auto;
+        flex: 1;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        font-size: 0.85rem;
+        margin-bottom: 6px;
+        color: #3e5b50;
+    }
+
+    .form-group input, 
+    .form-group select, 
+    .form-group textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1.5px solid #e3e2dc;
+        border-radius: 16px;
+        font-family: 'Inter', sans-serif;
+        transition: border 0.2s;
+    }
+    .form-group input:focus, 
+    .form-group select:focus, 
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #b8863f;
+    }
+
+    .form-group textarea {
+        resize: vertical;
+        min-height: 90px;
+    }
+
+    .btn-save {
+        background: linear-gradient(95deg, #2a5a48, #1e4035);
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 40px;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 10px;
+        font-size: 1.05rem;
+        transition: transform 0.15s;
+    }
+    .btn-save:hover {
+        transform: translateY(-2px);
+    }
+
+    /* View Details Modal specific styles */
+    .view-detail-row {
+        display: flex;
+        padding: 12px 0;
+        border-bottom: 1px solid #f0ece4;
+    }
+    .view-detail-label {
+        font-weight: 600;
+        width: 140px;
+        flex-shrink: 0;
+        color: #2c5a4a;
+    }
+    .view-detail-value {
+        color: #2d3e36;
+        flex: 1;
+        word-break: break-word;
+    }
+    .view-detail-value a {
+        color: #b8863f;
+        text-decoration: none;
+    }
+    .file-link {
+        background: #f7f5ef;
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 30px;
+        font-size: 0.85rem;
+    }
+    .file-link i {
+        margin-right: 6px;
+    }
+    .no-file {
+        background: #f5f0e8;
+        color: #9a8e7a;
+    }
+
+    @media (max-width: 780px) {
+        .sidebar { width: 90px; }
+        .sidebar a span { display: none; }
+        .view-detail-label { width: 110px; }
+    }
+</style>
+</head>
+<body>
+
+    <%- include('partials/sidebar', { currentPage: 'court-orders' }) %>
+
+    <div class="main">
+        <div class="page-header">
+            <h1><i class="fas fa-file-alt"></i> Court Orders Management</h1>
+            <div class="page-desc">Track court decisions, resolutions, writs, and legal directives</div>
+        </div>
+
+        <% if (typeof success !== 'undefined' && success) { %>
+            <div style="background: #e3f5ec; color: #1e6f4c; padding: 12px 18px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #1e6f4c;">
+                <i class="fas fa-check-circle"></i> <%= success %>
+            </div>
+        <% } %>
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div style="background: #fff1f0; color: #c95b48; padding: 12px 18px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #c95b48;">
+                <i class="fas fa-exclamation-circle"></i> <%= error %>
+            </div>
+        <% } %>
+
+        <div class="action-bar">
+            <button class="btn-primary" id="newOrderButton">
+                <i class="fas fa-plus"></i> Add Court Order
+            </button>
+
+            <div class="filter-bar">
+                <select class="filter-select" id="statusFilter" onchange="filterOrders()">
+                    <option value="all">All Status</option>
+                    <option value="Received">Received</option>
+                    <option value="Complied">Complied</option>
+                    <option value="Appealed">Appealed</option>
+                    <option value="Pending Action">Pending Action</option>
+                    <option value="Archived">Archived</option>
+                </select>
+                <select class="filter-select" id="typeFilter" onchange="filterOrders()">
+                    <option value="all">All Types</option>
+                    <option value="Decision">Decision</option>
+                    <option value="Resolution">Resolution</option>
+                    <option value="Order">Order</option>
+                    <option value="Writ">Writ</option>
+                    <option value="Subpoena">Subpoena</option>
+                    <option value="Summons">Summons</option>
+                    <option value="Notice">Notice</option>
+                </select>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search by order #, case, or judge..." onkeyup="filterOrders()">
+                </div>
+            </div>
+        </div>
+
+        <div class="orders-table-container">
+            <table id="ordersTable">
+                <thead>
+                    <tr>
+                        <th>Order No.</th>
+                        <th>Case Title</th>
+                        <th>Order Type</th>
+                        <th>Issued Date</th>
+                        <th>Received Date</th>
+                        <th>Judge</th>
+                        <th>Court Branch</th>
+                        <th>Summary</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (orders && orders.length > 0) { %>
+                        <% orders.forEach(function(o) { %>
+                            <tr>
+                                <td><strong><%= o.order_number %></strong></td>
+                                <td><%= o.case_title || '—' %></td>
+                                <td><span class="order-type-badge"><%= o.order_type %></span></td>
+                                <td><%= o.issued_date ? o.issued_date.toISOString().split('T')[0] : '—' %></td>
+                                <td><%= o.received_date ? o.received_date.toISOString().split('T')[0] : '—' %></td>
+                                <td><%= o.judge_name || '—' %></td>
+                                <td><%= o.court_branch || '—' %></td>
+                                <td class="summary-cell" title="<%= o.summary || '' %>">
+                                    <%= o.summary ? o.summary.substring(0, 80) + (o.summary.length > 80 ? '...' : '') : '—' %>
+                                </td>
+                                <td><span class="status-badge status-<%= (o.status || 'received').toLowerCase().replace(/ /g, '-') %>"><%= o.status || 'Received' %></span></td>
+                                <td class="action-icons">
+                                    <i class="fas fa-eye" onclick="viewOrder(<%= o.id %>)" title="View Details"></i>
+                                    <i class="fas fa-edit" onclick="editOrder(<%= o.id %>)" title="Edit Order"></i>
+                                    <i class="fas fa-download" onclick="downloadOrder(<%= o.id %>)" title="Download Document"></i>
+                                    <i class="fas fa-trash" onclick="deleteOrder(<%= o.id %>)" title="Delete Order"></i>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr><td colspan="10" style="text-align:center; padding: 80px 20px;">
+                            No court orders found. Click "Add Court Order" to get started.
+                        </td></tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MODAL FOR CREATE / EDIT FORM -->
+    <div id="orderModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle"><i class="fas fa-file-alt"></i> Add Court Order</h3>
+                <span class="close" id="closeOrderModal">×</span>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="/court-orders/create" id="orderForm" enctype="multipart/form-data">
+                    <input type="hidden" name="id" id="orderId">
+
+                    <div class="form-group">
+                        <label>Order Number *</label>
+                        <input type="text" name="order_number" id="orderNumber" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Case Title *</label>
+                        <input type="text" name="case_title" id="caseTitle" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Order Type *</label>
+                        <select name="order_type" id="orderType" required>
+                            <option value="Decision">Decision</option>
+                            <option value="Resolution">Resolution</option>
+                            <option value="Order">Order</option>
+                            <option value="Writ">Writ</option>
+                            <option value="Subpoena">Subpoena</option>
+                            <option value="Summons">Summons</option>
+                            <option value="Notice">Notice</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Issued Date *</label>
+                        <input type="date" name="issued_date" id="issuedDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Received Date</label>
+                        <input type="date" name="received_date" id="receivedDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Judge Name</label>
+                        <input type="text" name="judge_name" id="judgeName">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Court Branch</label>
+                        <input type="text" name="court_branch" id="courtBranch">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Summary</label>
+                        <textarea name="summary" id="summary" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Key Provisions</label>
+                        <textarea name="key_provisions" id="keyProvisions" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status" id="status">
+                            <option value="Received">Received</option>
+                            <option value="Complied">Complied</option>
+                            <option value="Appealed">Appealed</option>
+                            <option value="Pending Action">Pending Action</option>
+                            <option value="Archived">Archived</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Compliance Date</label>
+                        <input type="date" name="compliance_date" id="complianceDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Upload Document</label>
+                        <input type="file" name="order_file" accept=".pdf,.doc,.docx">
+                    </div>
+
+                    <button class="btn-save" type="submit"><i class="fas fa-save"></i> Save Court Order</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== FIXED VIEW ORDER DETAILS MODAL (Separate modal for read-only view) ========== -->
+    <div id="viewOrderModal" class="modal">
+        <div class="modal-content" style="max-width: 720px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-gavel"></i> Court Order Details</h3>
+                <span class="close" id="closeViewModal">×</span>
+            </div>
+            <div class="modal-body" id="viewOrderBody">
+                <div style="text-align:center; padding: 20px;">Loading order details...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const orderModal = document.getElementById('orderModal');
+        const viewModal = document.getElementById('viewOrderModal');
+        const newOrderBtn = document.getElementById('newOrderButton');
+        const closeModalBtn = document.getElementById('closeOrderModal');
+        const closeViewModalBtn = document.getElementById('closeViewModal');
+        const orderForm = document.getElementById('orderForm');
+        const modalTitle = document.getElementById('modalTitle');
+
+        // Helper to close modals
+        function closeOrderModal() {
+            orderModal.style.display = 'none';
+        }
+        function closeViewModal() {
+            viewModal.style.display = 'none';
+        }
+        function openAddOrderModal() {
+            orderForm.reset();
+            document.getElementById('orderId').value = '';
+            modalTitle.innerHTML = `<i class="fas fa-file-alt"></i> Add Court Order`;
+            orderForm.action = "/court-orders/create";
+            // Clear file input
+            const fileInput = document.querySelector('input[name="order_file"]');
+            if(fileInput) fileInput.value = '';
+            orderModal.style.display = 'flex';
+        }
+
+        newOrderBtn.onclick = openAddOrderModal;
+        closeModalBtn.onclick = closeOrderModal;
+        if(closeViewModalBtn) closeViewModalBtn.onclick = closeViewModal;
+
+        window.onclick = function(event) {
+            if (event.target === orderModal) closeOrderModal();
+            if (event.target === viewModal) closeViewModal();
+        };
+
+        // Helper function to determine file icon based on filename
+        function getFileIcon(filename) {
+            if (!filename) return 'fa-file-alt';
+            const ext = filename.split('.').pop().toLowerCase();
+            if (ext === 'pdf') return 'fa-file-pdf';
+            if (ext === 'doc' || ext === 'docx') return 'fa-file-word';
+            if (ext === 'jpg' || ext === 'jpeg' || ext === 'png') return 'fa-file-image';
+            return 'fa-file-alt';
+        }
+
+        // FIXED viewOrder function: fetch full details and display in dedicated modal
+        // Now properly shows attached document with filename and download link
+        function viewOrder(id) {
+            if (!id) return;
+            // Show loading state
+            document.getElementById('viewOrderBody').innerHTML = '<div style="text-align:center; padding: 20px;"><i class="fas fa-spinner fa-pulse"></i> Loading order details...</div>';
+            viewModal.style.display = 'flex';
+            
+            fetch(`/court-orders/${id}`)
+                .then(res => {
+                    if (!res.ok) throw new Error('Failed to fetch order');
+                    return res.json();
+                })
+                .then(order => {
+                    const formatDate = (dateStr) => {
+                        if (!dateStr) return '—';
+                        const d = new Date(dateStr);
+                        if (isNaN(d.getTime())) return '—';
+                        return d.toISOString().split('T')[0];
+                    };
+                    
+                    // Check if there's an attached document (filename or original_filename)
+                    const hasFile = order.filename || order.original_filename;
+                    const fileName = order.original_filename || order.filename || '';
+                    const fileIcon = getFileIcon(fileName);
+                    
+                    let fileHtml = '';
+                    if (hasFile && fileName) {
+                        fileHtml = `
+                            <a href="/court-orders/download/${order.id}" class="file-link" target="_blank" style="display: inline-flex; align-items: center; gap: 8px;">
+                                <i class="fas ${fileIcon}" style="font-size: 1.1rem;"></i>
+                                <span>${escapeHtml(fileName)}</span>
+                                <i class="fas fa-download" style="font-size: 0.75rem; opacity: 0.7;"></i>
+                            </a>
+                        `;
+                    } else {
+                        fileHtml = `<span class="file-link no-file"><i class="fas fa-ban"></i> No attached document</span>`;
+                    }
+                    
+                    const detailsHtml = `
+                        <div class="view-detail-row">
+                            <div class="view-detail-label">Order Number:</div>
+                            <div class="view-detail-value"><strong>${escapeHtml(order.order_number)}</strong></div>
+                        </div>
+                        <div class="view-detail-row">
+                            <div class="view-detail-label">Case Title:</div>
+                            <div class="view-detail-value">${escapeHtml(order.case_title || '—')}</div>
+                        </div>
+                        <div class="view-detail-row">
+                            <div class="view-detail-label">Order Type:</div>
+                            <div class="view-detail-value"><span class="order-type-badge">${escapeHtml(order.order_type)}</span></div>
+                        </div>
+                        <div class="view-detail-row">
+                            <div class="view-detail-label">Issued Date:</div>
+                            <div class="view-detail-value">${formatDate(order.issued_date)}</div>
+                        </div>
+                        <div class="view-detail-row">
+                            <div class="view-detail-label">Received Date:</div>
+                            <div class="view-detail-value">${formatDate(order.received_date)}</div>
+                        </div>
+                        <div class="view-detail-row">
+                            <div class="view-detail-label">Judge:</div>
+                            <div class="view-detail-value">${escapeHtml(order.judge_name || '—')}</div>
+                        </div>
+                        <div class="view-detail-row">
+                            <div class="view-detail-label">Court Branch:</div>
+                            <div class="view-detail-value">${escapeHtml(order.court_branch || '—')}</div>
+                        </div>
+                        <div class="view-detail-row">
+                            <div class="view-detail-label">Status:</div>
+                            <div class="view-detail-value"><span class="status-badge status-${(order.status || 'received').toLowerCase().replace(/ /g, '-')}">${escapeHtml(order.status || 'Received')}</span></div>
+                        </div>
+                        <div class="view-detail-row">
+                            <div class="view-detail-label">Compliance Date:</div>
+                            <div class="view-detail-value">${formatDate(order.compliance_date)}</div>
+                        </div>
+                        <div class="view-detail-row">
+                            <div class="view-detail-label">Summary:</div>
+                            <div class="view-detail-value">${escapeHtml(order.summary) || '—'}</div>
+                        </div>
+                        <div class="view-detail-row">
+                            <div class="view-detail-label">Key Provisions:</div>
+                            <div class="view-detail-value">${escapeHtml(order.key_provisions) || '—'}</div>
+                        </div>
+                        <div class="view-detail-row">
+                            <div class="view-detail-label">Attached Document:</div>
+                            <div class="view-detail-value">${fileHtml}</div>
+                        </div>
+                    `;
+                    document.getElementById('viewOrderBody').innerHTML = detailsHtml;
+                })
+                .catch(err => {
+                    console.error('View order error:', err);
+                    document.getElementById('viewOrderBody').innerHTML = `
+                        <div style="color:#c95b48; padding:20px; text-align:center;">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 12px; display: block;"></i>
+                            Error loading order details. Please try again.
+                            <div style="font-size: 0.85rem; margin-top: 12px; color: #9a8e7a;">${err.message}</div>
+                        </div>`;
+                });
+        }
+
+        // simple XSS prevention helper
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        // editOrder: using main modal and pre-populate data
+        function editOrder(id) {
+            fetch(`/court-orders/${id}`)
+                .then(res => res.json())
+                .then(order => {
+                    document.getElementById('orderId').value = order.id;
+                    document.getElementById('orderNumber').value = order.order_number;
+                    document.getElementById('caseTitle').value = order.case_title || '';
+                    document.getElementById('orderType').value = order.order_type;
+                    document.getElementById('issuedDate').value = order.issued_date ? order.issued_date.split('T')[0] : '';
+                    document.getElementById('receivedDate').value = order.received_date ? order.received_date.split('T')[0] : '';
+                    document.getElementById('judgeName').value = order.judge_name || '';
+                    document.getElementById('courtBranch').value = order.court_branch || '';
+                    document.getElementById('summary').value = order.summary || '';
+                    document.getElementById('keyProvisions').value = order.key_provisions || '';
+                    document.getElementById('status').value = order.status || 'Received';
+                    document.getElementById('complianceDate').value = order.compliance_date ? order.compliance_date.split('T')[0] : '';
+                    
+                    modalTitle.innerHTML = `<i class="fas fa-edit"></i> Edit Court Order`;
+                    orderForm.action = `/court-orders/update/${id}`;
+                    orderModal.style.display = 'flex';
+                })
+                .catch(err => alert("Error loading order data for editing: " + err.message));
+        }
+
+        // Download function — triggers backend download route
+        function downloadOrder(id) {
+            window.location.href = `/court-orders/download/${id}`;
+        }
+
+        // DELETE order with confirmation and reload
+        function deleteOrder(id) {
+            if (confirm('⚠️ Delete this court order permanently? This action cannot be undone.')) {
+                fetch(`/court-orders/delete/${id}`, { method: 'DELETE' })
+                    .then(response => {
+                        if (response.ok) {
+                            location.reload();
+                        } else {
+                            alert('Error deleting order; please try again.');
+                        }
+                    })
+                    .catch(() => alert('Network error. Could not delete order.'));
+            }
+        }
+
+        // Filter orders
+        function filterOrders() {
+            const status = document.getElementById('statusFilter').value.toLowerCase();
+            const type = document.getElementById('typeFilter').value;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#ordersTable tbody tr');
+            
+            rows.forEach(row => {
+                if (row.cells.length < 9) return;
+                const rowText = row.innerText.toLowerCase();
+                const statusCell = row.cells[8]?.innerText.toLowerCase() || '';
+                const rawTypeCell = row.cells[2]?.innerText || '';
+                
+                let matchStatus = status === 'all' || statusCell.includes(status);
+                let matchType = type === 'all' || rawTypeCell === type;
+                const matchSearch = rowText.includes(search);
+                
+                row.style.display = (matchStatus && matchType && matchSearch) ? '' : 'none';
+            });
+        }
+
+        // Ensure any global errors not breaking
+        window.filterOrders = filterOrders;
+        window.viewOrder = viewOrder;
+        window.editOrder = editOrder;
+        window.downloadOrder = downloadOrder;
+        window.deleteOrder = deleteOrder;
+    </script>
+</body>
+</html>

@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Bautista Law Office | Maroon Heritage Portal</title>
+    
+    <!-- Google Fonts + Font Awesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: #f5f3ef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            position: relative;
+        }
+        
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(#c9b6a5 1px, transparent 1px);
+            background-size: 28px 28px;
+            opacity: 0.2;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .login-container {
+            display: flex;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 36px;
+            box-shadow: 0 30px 50px -20px rgba(96, 36, 46, 0.25), 0 0 0 1px rgba(128, 53, 61, 0.15);
+            overflow: hidden;
+            transition: all 0.2s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .left-side {
+            flex: 1.2;
+            background: linear-gradient(135deg, #6a1e2c 0%, #8b2c3e 50%, #59161f 100%);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            color: #fff7eb;
+            padding: 50px 40px;
+            transition: all 0.3s;
+        }
+        
+        .left-side::after {
+            content: "⚖️";
+            font-size: 110px;
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            opacity: 0.09;
+            font-family: monospace;
+            pointer-events: none;
+            transform: rotate(-5deg);
+            color: #fad6a0;
+        }
+        
+        .law-logo-area {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+            z-index: 2;
+            position: relative;
+        }
+        
+/* SMALL FILLED CIRCLE LOGO */
+.law-logo-img {
+    width: 58px;          /* Slightly bigger than 45px for better visibility */
+    height: 58px;
+    border-radius: 50%;
+    object-fit: cover;    /* Best for filling the circle */
+    background: #ffffff;
+    padding: 3px;
+    border: 3px solid #ffffff;   /* Clean white border */
+    box-shadow: 
+        0 4px 12px -4px rgba(0,0,0,0.3),
+        0 0 0 4px #6a1e2c;       /* Maroon outer ring */
+    transition: transform 0.3s ease;
+}
+
+.law-logo-img:hover {
+    transform: scale(1.12);
+}
+        
+        .brand-text {
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+        
+        .brand-text h3 {
+            font-size: 1.65rem;
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 700;
+            letter-spacing: 1px;
+            line-height: 1.1;
+            color: #ffefcf;
+        }
+        
+        .brand-text span {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            letter-spacing: 1.5px;
+            font-weight: 400;
+        }
+        
+        .hero-motto {
+            margin-top: auto;
+            margin-bottom: 20px;
+            z-index: 2;
+        }
+        
+        .hero-motto h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3rem;
+            font-weight: 600;
+            line-height: 1.2;
+            margin-bottom: 18px;
+            letter-spacing: -0.5px;
+            color: #fff3e0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .hero-motto p {
+            font-size: 1rem;
+            line-height: 1.5;
+            opacity: 0.92;
+            max-width: 85%;
+            font-weight: 400;
+            border-left: 3px solid #e3bc8e;
+            padding-left: 18px;
+        }
+        
+        .contact-badge {
+            margin-top: 40px;
+            font-size: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 28px;
+            padding: 14px 18px;
+            backdrop-filter: blur(2px);
+        }
+        
+        .contact-badge i {
+            width: 26px;
+            color: #f3cf9a;
+        }
+        
+        .contact-badge .row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 400;
+        }
+        
+        /* RIGHT SIDE remains the same */
+        .right-side {
+            flex: 1;
+            padding: 56px 48px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .form-header {
+            margin-bottom: 32px;
+        }
+        
+        .form-header .greeting {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #60212e;
+            font-family: 'Cormorant Garamond', serif;
+            letter-spacing: -0.3px;
+        }
+        
+        .form-header .sub {
+            color: #74655a;
+            font-size: 0.9rem;
+            margin-top: 8px;
+            font-weight: 400;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+            position: relative;
+        }
+        
+        .form-group i.input-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9e7f6e;
+            font-size: 1.1rem;
+            transition: 0.2s;
+            pointer-events: none;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 16px 20px 16px 48px;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            border: 1.5px solid #e2dbd4;
+            border-radius: 28px;
+            background: #fefcf9;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            color: #2d2a27;
+        }
+        
+        .form-group input:focus {
+            border-color: #9e3a4c;
+            outline: none;
+            background: #ffffff;
+            box-shadow: 0 4px 14px rgba(158, 58, 76, 0.15);
+        }
+        
+        .form-group input::placeholder {
+            color: #c7bcb0;
+            font-weight: 400;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(95deg, #762432 0%, #541b26 100%);
+            border: none;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 38px;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 8px 16px rgba(94, 36, 52, 0.3);
+            margin-top: 12px;
+        }
+        
+        .login-btn i {
+            font-size: 1rem;
+            transition: transform 0.2s;
+        }
+        
+        .login-btn:hover {
+            background: linear-gradient(95deg, #631d2c, #46141f);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 22px -6px rgba(107, 41, 59, 0.45);
+        }
+        
+        .login-btn:hover i {
+            transform: translateX(4px);
+        }
+        
+        .error {
+            background: #fef3f2;
+            color: #ac4b59;
+            padding: 12px 18px;
+            margin-bottom: 24px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            border-left: 4px solid #b0475a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+        
+        .extra-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 24px;
+            font-size: 0.8rem;
+        }
+        
+        .extra-links a {
+            text-decoration: none;
+            color: #7a5c4f;
+            transition: color 0.2s;
+            font-weight: 500;
+        }
+        
+        .extra-links a:hover {
+            color: #983c4e;
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 850px) {
+            .login-container {
+                flex-direction: column;
+                border-radius: 32px;
+                max-width: 550px;
+            }
+            .left-side {
+                padding: 36px 28px;
+                text-align: center;
+            }
+            .hero-motto p {
+                max-width: 100%;
+            }
+            .contact-badge {
+                align-items: center;
+                text-align: center;
+            }
+            .contact-badge .row {
+                justify-content: center;
+            }
+            .right-side {
+                padding: 44px 32px;
+            }
+            .form-header .greeting {
+                font-size: 1.8rem;
+            }
+            .left-side::after {
+                font-size: 70px;
+                bottom: 10px;
+                right: 10px;
+            }
+            .law-logo-img {
+                width: 110px;
+                height: 110px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 12px;
+            }
+            .right-side {
+                padding: 32px 24px;
+            }
+            .hero-motto h1 {
+                font-size: 2.2rem;
+            }
+            .brand-text h3 {
+                font-size: 1.25rem;
+            }
+        }
+        
+        .login-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .law-seal {
+            position: relative;
+            z-index: 2;
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        input:-webkit-autofill,
+        input:-webkit-autofill:focus {
+            transition: background-color 0s 600000s, color 0s 600000s;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+
+    <!-- LEFT SIDE -->
+    <div class="left-side">
+        <div class="law-logo-area">
+            <!-- Bautista Law Office Logo -->
+            <img src="/images/bautista-law-logo.png" 
+                 alt="Bautista Law Office Logo" 
+                 class="law-logo-img"
+                 onerror="this.src='https://via.placeholder.com/135?text=Bautista+Law';">
+            
+            <div class="brand-text">
+                <h3>BAUTISTA LAW OFFICE</h3>
+                <span>EST. 2012</span>
+            </div>
+        </div>
+        
+        <div class="hero-motto">
+            <h1>"SEEKING JUSTICE,<br>SERVING YOU."</h1>
+            <p>Your trusted partner in law — committed to excellence, integrity, and unwavering advocacy for every client.</p>
+        </div>
+        
+        <div class="contact-badge">
+            <div class="row">
+                <i class="fas fa-phone-alt"></i>
+                <span>+63 915 891 1744</span>
+            </div>
+            <div class="row">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>VSOD Bldg., J.P Rizal Street, Camilmil, Calapan City, Oriental Mindoro</span>
+            </div>
+            <div class="row">
+                <i class="fas fa-envelope"></i>
+                <span>sam.42bautista@gmail.com</span>
+            </div>
+        </div>
+        
+        <div class="law-seal">
+            <i class="fas fa-gavel" style="font-size: 18px; opacity: 0.6;"></i>
+            <i class="fas fa-handshake" style="font-size: 18px; opacity: 0.6;"></i>
+        </div>
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="right-side">
+        <div class="form-header">
+            <div class="greeting">Welcome back</div>
+            <div class="sub">Access your confidential client portal & case dashboard</div>
+        </div>
+
+        <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+            <div class="error">
+                <i class="fas fa-exclamation-triangle"></i> 
+                <span><%= errorMessage %></span>
+            </div>
+        <% } %>
+
+        <form method="POST" action="/login" id="loginForm">
+            <div class="form-group">
+                <i class="fas fa-user input-icon"></i>
+                <input type="text" name="username" id="username" placeholder="Attorney / Staff ID or Email" required autocomplete="username">
+            </div>
+
+            <div class="form-group">
+                <i class="fas fa-lock input-icon"></i>
+                <input type="password" name="password" id="password" placeholder="Secure password" required autocomplete="current-password">
+            </div>
+
+            <button class="login-btn" type="submit">
+                <span>Sign in to Portal</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+            
+            <div class="extra-links">
+                <a href="#"><i class="far fa-question-circle"></i> Forgot password?</a>
+                <a href="#"><i class="fas fa-shield-alt"></i> Secure access</a>
+            </div>
+        </form>
+        
+        <div style="margin-top: 32px; font-size: 0.7rem; text-align: center; color: #bbaa9c; border-top: 1px solid #f0eae3; padding-top: 20px;">
+            <i class="fas fa-laptop-code"></i> Attorney–Client Privileged Platform | 2FA-ready
+        </div>
+    </div>
+</div>
+
+<script>
+    // Existing script (unchanged)
+    (function() {
+        const form = document.getElementById('loginForm');
+        if(form) {
+            form.addEventListener('submit', function(e) {
+                const username = document.getElementById('username');
+                const password = document.getElementById('password');
+                let hasError = false;
+                
+                const prevToasts = document.querySelectorAll('.dynamic-error-toast');
+                prevToasts.forEach(toast => toast.remove());
+                
+                if(!username.value.trim()) {
+                    e.preventDefault();
+                    showFloatingAlert('Please enter your username / email', username);
+                    hasError = true;
+                } else if(!password.value.trim()) {
+                    e.preventDefault();
+                    showFloatingAlert('Password is required', password);
+                    hasError = true;
+                }
+                
+                if(hasError) return false;
+            });
+        }
+        
+        function showFloatingAlert(msg, inputField) {
+            const parentGroup = inputField.closest('.form-group');
+            const existingAlert = parentGroup.parentNode.querySelector('.dynamic-error-toast');
+            if(existingAlert) existingAlert.remove();
+            
+            const errDiv = document.createElement('div');
+            errDiv.className = 'dynamic-error-toast';
+            errDiv.innerHTML = `<i class="fas fa-info-circle"></i> ${msg}`;
+            errDiv.style.position = 'relative';
+            errDiv.style.backgroundColor = '#fff4f2';
+            errDiv.style.color = '#aa4b5b';
+            errDiv.style.borderLeft = '4px solid #aa4b5b';
+            errDiv.style.boxShadow = '0 2px 8px rgba(0,0,0,0.02)';
+            
+            parentGroup.parentNode.insertBefore(errDiv, parentGroup);
+            
+            inputField.style.borderColor = '#b85b6b';
+            inputField.focus();
+            
+            setTimeout(() => {
+                if(errDiv && errDiv.remove) errDiv.remove();
+                if(inputField) inputField.style.borderColor = '#e2dbd4';
+            }, 2800);
+        }
+        
+        const container = document.querySelector('.login-container');
+        if(container) {
+            container.addEventListener('mouseenter', () => {
+                container.style.boxShadow = '0 32px 56px -24px rgba(106, 30, 44, 0.28), 0 0 0 1px rgba(128, 53, 61, 0.2)';
+            });
+            container.addEventListener('mouseleave', () => {
+                container.style.boxShadow = '0 30px 50px -20px rgba(96, 36, 46, 0.25), 0 0 0 1px rgba(128, 53, 61, 0.12)';
+            });
+        }
+    })();
+</script>
+
+</body>
+</html>

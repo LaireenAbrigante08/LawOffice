@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<%- include('partials/head') %>
+<title>Bautista Law Office | Case Management</title>
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Inter', sans-serif;
+    height: 100vh;
+    background: linear-gradient(135deg, #eef2f0 0%, #e0e8e3 100%);
+    display: flex;
+    overflow: hidden;
+}
+.sidebar {
+    width: 280px;
+    background: linear-gradient(180deg, #1a3a32 0%, #0f2c24 100%);
+    color: #fef5e7;
+    padding: 28px 20px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.08);
+    z-index: 10;
+}
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(219, 184, 107, 0.3);
+}
+.sidebar-icon {
+    background: #dbb86b;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+.sidebar-icon i { color: #1a3a32; }
+.sidebar-header h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #f7eac5;
+}
+.sidebar-header span { font-size: 0.7rem; opacity: 0.7; display: block; }
+.sidebar-nav { flex: 1; display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
+.sidebar a {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    color: #e2e6dc;
+    text-decoration: none;
+    font-weight: 500;
+    border-radius: 14px;
+    transition: all 0.25s ease;
+}
+.sidebar a i { width: 24px; font-size: 1.2rem; }
+.sidebar a:hover { background: rgba(219, 184, 107, 0.18); color: #ffefcf; transform: translateX(5px); }
+.sidebar a.active { background: #dbb86b; color: #1e2f28; font-weight: 600; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+.sidebar a.active i { color: #1a3a32; }
+.logout-link { margin-top: auto; border-top: 1px solid rgba(219, 184, 107, 0.2); padding-top: 20px; }
+.logout-link a { color: #f0cf9a; }
+.main { flex: 1; padding: 30px 36px; overflow-y: auto; }
+.page-header { margin-bottom: 32px; }
+.page-header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: #1e4238;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.page-header h1 i { background: #dbb86b20; padding: 10px; border-radius: 50%; color: #b8863f; }
+.page-desc { color: #5a6e64; margin-top: 8px; border-left: 3px solid #dbb86b; padding-left: 16px; }
+.action-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+.btn-primary {
+    background: linear-gradient(95deg, #2a5a48, #1e4035);
+    border: none;
+    padding: 12px 28px;
+    border-radius: 40px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.btn-primary:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(95deg, #1f4a3b, #15382d);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+.search-box {
+    display: flex;
+    gap: 10px;
+    background: white;
+    padding: 4px 20px;
+    border-radius: 44px;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.search-box input {
+    border: none;
+    padding: 10px 0;
+    width: 260px;
+    outline: none;
+    font-size: 0.95rem;
+}
+.search-box i {
+    color: #9aa99f;
+    font-size: 1.1rem;
+}
+.cases-table-container {
+    background: white;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+}
+table { width: 100%; border-collapse: collapse; }
+th {
+    text-align: left;
+    padding: 18px 20px;
+    background: #faf8f3;
+    font-weight: 600;
+    color: #2c5a4a;
+    border-bottom: 2px solid #e9e2d4;
+    font-size: 0.9rem;
+}
+td { padding: 16px 20px; border-bottom: 1px solid #f0ece4; color: #2d3e36; }
+tr:hover { background: #fefcf7; }
+.status-badge {
+    display: inline-block;
+    padding: 5px 14px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+.status-active { background: #e3f5ec; color: #1e6f4c; }
+.status-pending { background: #fff3e0; color: #c47a2e; }
+.status-closed { background: #ececec; color: #6b6b6b; }
+.status-appealed { background: #fee2e2; color: #b3402a; }
+
+/* Action Buttons Design */
+.action-icons {
+    display: flex;
+    gap: 8px;
+}
+.action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    background: #f5f5f5;
+    color: #5a6e64;
+    border: none;
+}
+.action-btn i {
+    font-size: 0.9rem;
+}
+.action-btn:hover {
+    transform: translateY(-2px);
+}
+.action-view {
+    background: #e8f4f0;
+    color: #2a5a48;
+}
+.action-view:hover {
+    background: #2a5a48;
+    color: white;
+    box-shadow: 0 4px 8px rgba(42, 90, 72, 0.3);
+}
+.action-edit {
+    background: #fff3e0;
+    color: #c47a2e;
+}
+.action-edit:hover {
+    background: #c47a2e;
+    color: white;
+    box-shadow: 0 4px 8px rgba(196, 122, 46, 0.3);
+}
+.action-delete {
+    background: #fee2e2;
+    color: #c95b48;
+}
+.action-delete:hover {
+    background: #c95b48;
+    color: white;
+    box-shadow: 0 4px 8px rgba(201, 91, 72, 0.3);
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(26, 38, 32, 0.6);
+    backdrop-filter: blur(6px);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.modal-content {
+    background: white;
+    border-radius: 32px;
+    width: 560px;
+    max-width: 92%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 25px 45px rgba(0, 0, 0, 0.25);
+    animation: modalSlideIn 0.3s ease;
+}
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+.modal-header { 
+    background: linear-gradient(135deg, #1e3f36 0%, #15382d 100%);
+    padding: 20px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    border-top-left-radius: 32px;
+    border-top-right-radius: 32px;
+    flex-shrink: 0;
+}
+.modal-header h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+}
+.close { 
+    font-size: 28px;
+    cursor: pointer;
+    background: rgba(255,255,255,0.15);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+.close:hover {
+    background: rgba(255,255,255,0.3);
+    transform: scale(1.05) rotate(90deg);
+}
+.modal-body { 
+    padding: 28px 28px 32px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    flex: 1 1 auto;
+    background: white;
+}
+.modal-body::-webkit-scrollbar { width: 6px; }
+.modal-body::-webkit-scrollbar-track { background: #f0ede8; border-radius: 8px; }
+.modal-body::-webkit-scrollbar-thumb { background: #c0b69e; border-radius: 8px; }
+
+/* View Details Modal Specific Styles */
+.details-section {
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f0ece4;
+}
+.details-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+.details-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #9aa99f;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+.details-value {
+    font-size: 1rem;
+    color: #2d3e36;
+    font-weight: 500;
+    word-wrap: break-word;
+}
+.details-value code {
+    background: #f5f5f5;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+.status-badge-large {
+    display: inline-block;
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+.info-card {
+    background: #faf8f3;
+    padding: 16px;
+    border-radius: 16px;
+}
+.info-card .details-label {
+    margin-bottom: 8px;
+}
+.btn-close-details {
+    background: #e8e5df;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 40px;
+    color: #5a6e64;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.2s ease;
+}
+.btn-close-details:hover {
+    background: #dbb86b;
+    color: white;
+}
+
+.form-group {
+    margin-bottom: 22px;
+}
+.form-group label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.8rem;
+    margin-bottom: 8px;
+    color: #3e5b50;
+    letter-spacing: 0.3px;
+}
+.form-group label span {
+    color: #c95b48;
+}
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e8e5df;
+    border-radius: 14px;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+}
+.form-group input:focus, .form-group select:focus {
+    outline: none;
+    border-color: #b8863f;
+    box-shadow: 0 0 0 4px rgba(184, 134, 63, 0.1);
+}
+.form-group textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e8e5df;
+    border-radius: 14px;
+    font-family: 'Inter', sans-serif;
+    min-height: 100px;
+    resize: vertical;
+    transition: all 0.2s ease;
+}
+.form-group textarea:focus {
+    outline: none;
+    border-color: #b8863f;
+    box-shadow: 0 0 0 4px rgba(184, 134, 63, 0.1);
+}
+.btn-save {
+    background: linear-gradient(95deg, #2a5a48, #1e4035);
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 40px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+.btn-save:hover {
+    background: linear-gradient(95deg, #1f4a3b, #15382d);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+.flash-message {
+    padding: 14px 20px;
+    border-radius: 14px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: slideDown 0.3s ease;
+}
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.flash-success {
+    background: #e3f5ec;
+    color: #1e6f4c;
+    border-left: 4px solid #1e6f4c;
+}
+.flash-error {
+    background: #fff1f0;
+    color: #c95b48;
+    border-left: 4px solid #c95b48;
+}
+
+@media (max-width: 780px) {
+    .sidebar { width: 90px; }
+    .sidebar a span { display: none; }
+    .modal-content { width: 95%; }
+    .action-icons { gap: 5px; }
+    .action-btn { width: 28px; height: 28px; }
+    td { padding: 12px 15px; }
+    .details-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<%- include('partials/sidebar', { currentPage: 'cases' }) %>
+
+<div class="main">
+    <div class="page-header">
+        <h1><i class="fas fa-gavel"></i> Case Management</h1>
+        <div class="page-desc">Track active litigation, case statuses, and legal documents</div>
+    </div>
+
+    <% if (typeof success !== 'undefined' && success) { %>
+        <div class="flash-message flash-success">
+            <i class="fas fa-check-circle" style="font-size: 1.2rem;"></i>
+            <span><%= success %></span>
+        </div>
+    <% } %>
+    <% if (typeof error !== 'undefined' && error) { %>
+        <div class="flash-message flash-error">
+            <i class="fas fa-exclamation-circle" style="font-size: 1.2rem;"></i>
+            <span><%= error %></span>
+        </div>
+    <% } %>
+
+    <div class="action-bar">
+        <button class="btn-primary" id="newCaseButton">
+            <i class="fas fa-plus-circle"></i> New Case
+        </button>
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Search cases by title, number, or client...">
+        </div>
+    </div>
+
+    <div class="cases-table-container">
+        <table id="casesTable">
+            <thead>
+                <tr>
+                    <th>Case Title</th>
+                    <th>Case No.</th>
+                    <th>Client</th>
+                    <th>Status</th>
+                    <th>Filed Date</th>
+                    <th style="text-align: center;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (typeof cases !== 'undefined' && cases && cases.length > 0) { %>
+                    <% cases.forEach(function(c) { %>
+                        <tr data-case-id="<%= c.id %>">
+                            <td style="font-weight: 500;"><%= c.title %></td>
+                            <td><code style="background: #f5f5f5; padding: 4px 8px; border-radius: 6px; font-size: 0.85rem;"><%= c.case_number || c.caseNumber %></code></td>
+                            <td><i class="fas fa-user" style="color: #9aa99f; font-size: 0.8rem; margin-right: 6px;"></i><%= c.client_name || c.client %></td>
+                            <td><span class="status-badge status-<%= (c.status || 'active').toLowerCase() %>"><%= c.status || 'Active' %></span></td>
+                            <td><i class="far fa-calendar-alt" style="color: #9aa99f; margin-right: 6px;"></i><%= c.filing_date ? new Date(c.filing_date).toLocaleDateString() : '—' %></td>
+                            <td style="text-align: center;">
+                                <div class="action-icons">
+                                    <button class="action-btn action-view" onclick="viewCase(<%= c.id %>)" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn action-edit" onclick="editCase(<%= c.id %>)" title="Edit Case">
+                                        <i class="fas fa-pencil-alt"></i>
+                                    </button>
+                                    <button class="action-btn action-delete" onclick="deleteCase(<%= c.id %>)" title="Delete Case">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    <% }); %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="6" style="text-align:center; padding: 60px 40px;">
+                            <i class="fas fa-folder-open" style="font-size: 48px; color: #dbb86b; margin-bottom: 16px; display: block;"></i>
+                            <p style="color: #8a9a8f; font-size: 1rem;">No cases found. Click "New Case" to add your first case.</p>
+                        </td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- View Details Modal -->
+<div id="viewModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-info-circle"></i> Case Details</h3>
+            <span class="close" id="closeViewModalBtn">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div id="viewDetailsContent">
+                <!-- Dynamic content will be loaded here -->
+            </div>
+            <button class="btn-close-details" onclick="closeViewModal()">
+                <i class="fas fa-times"></i> Close
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Add / Edit Case Modal -->
+<div id="caseModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle"><i class="fas fa-folder-plus"></i> Add New Case</h3>
+            <span class="close" id="closeModalBtn">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form method="POST" action="/cases/create" id="caseForm">
+                <input type="hidden" name="id" id="caseId">
+
+                <div class="form-group">
+                    <label><i class="fas fa-gavel" style="margin-right: 6px;"></i> Case Title <span>*</span></label>
+                    <input type="text" name="title" id="caseTitle" required placeholder="e.g., People vs. Dela Cruz">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-hashtag"></i> Case Number <span>*</span></label>
+                    <input type="text" name="case_number" id="caseNumber" required placeholder="e.g., CIV-2024-001">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-user-tie"></i> Client Name <span>*</span></label>
+                    <input type="text" name="client_name" id="clientName" required placeholder="Full name of client">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-phone-alt"></i> Client Contact</label>
+                    <input type="text" name="client_contact" id="clientContact" placeholder="Phone / Email">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-tag"></i> Case Type</label>
+                    <select name="case_type" id="caseType">
+                        <option value="">Select Case Type</option>
+                        <option value="Civil">⚖️ Civil</option>
+                        <option value="Criminal">🔒 Criminal</option>
+                        <option value="Labor">👔 Labor</option>
+                        <option value="Family">🏠 Family</option>
+                        <option value="Administrative">📋 Administrative</option>
+                        <option value="Commercial">💼 Commercial</option>
+                        <option value="Other">📌 Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-chart-line"></i> Status</label>
+                    <select name="status" id="caseStatus">
+                        <option value="Active">🟢 Active</option>
+                        <option value="Pending">🟡 Pending</option>
+                        <option value="Closed">⚫ Closed</option>
+                        <option value="Appealed">🔴 Appealed</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-calendar-plus"></i> Filed Date</label>
+                    <input type="date" name="filing_date" id="filingDate">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-calendar-times"></i> Closing Date</label>
+                    <input type="date" name="closing_date" id="closingDate">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-user-graduate"></i> Assigned Lawyer</label>
+                    <select name="assigned_lawyer_id" id="assignedLawyer">
+                        <option value="">Select Lawyer</option>
+                        <% if (typeof lawyers !== 'undefined') { %>
+                            <% lawyers.forEach(lawyer => { %>
+                                <option value="<%= lawyer.id %>"><%= lawyer.full_name || lawyer.name %></option>
+                            <% }); %>
+                        <% } %>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-sticky-note"></i> Description / Notes</label>
+                    <textarea name="description" id="caseDescription" placeholder="Case summary, important notes, key dates, etc..."></textarea>
+                </div>
+
+                <button class="btn-save" type="submit" id="saveBtn">
+                    <i class="fas fa-save"></i> Save Case
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Modal elements
+const modal = document.getElementById('caseModal');
+const viewModal = document.getElementById('viewModal');
+const newCaseBtn = document.getElementById('newCaseButton');
+const closeBtn = document.getElementById('closeModalBtn');
+const closeViewBtn = document.getElementById('closeViewModalBtn');
+const form = document.getElementById('caseForm');
+const modalTitle = document.getElementById('modalTitle');
+
+// Close modal functions
+function closeCaseModal() {
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+function closeViewModal() {
+    viewModal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+// Open modal for new case
+function openAddCaseModal() {
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    form.reset();
+    document.getElementById('caseId').value = '';
+    modalTitle.innerHTML = `<i class="fas fa-folder-plus"></i> Add New Case`;
+    form.action = "/cases/create";
+    form.method = "POST";
+    form.removeAttribute('data-edit-mode');
+}
+
+// Event Listeners
+if (newCaseBtn) newCaseBtn.onclick = openAddCaseModal;
+if (closeBtn) closeBtn.onclick = closeCaseModal;
+if (closeViewBtn) closeViewBtn.onclick = closeViewModal;
+
+window.onclick = function(event) {
+    if (event.target === modal) closeCaseModal();
+    if (event.target === viewModal) closeViewModal();
+};
+
+// Search functionality
+function filterCases() {
+    let input = document.getElementById('searchInput');
+    if (!input) return;
+    let filter = input.value.toLowerCase();
+    let rows = document.querySelectorAll('#casesTable tbody tr');
+    let visibleCount = 0;
+    
+    rows.forEach(row => {
+        let text = row.innerText.toLowerCase();
+        let shouldShow = text.includes(filter);
+        row.style.display = shouldShow ? '' : 'none';
+        if (shouldShow) visibleCount++;
+    });
+    
+    const tableBody = document.querySelector('#casesTable tbody');
+    const noResultRow = document.getElementById('noResultsRow');
+    if (visibleCount === 0 && rows.length > 0 && !noResultRow) {
+        const tr = document.createElement('tr');
+        tr.id = 'noResultsRow';
+        tr.innerHTML = '<td colspan="6" style="text-align:center; padding: 40px;"><i class="fas fa-search" style="font-size: 32px; color: #dbb86b; margin-bottom: 10px; display: block;"></i>No matching cases found</td>';
+        tableBody.appendChild(tr);
+    } else if (noResultRow && visibleCount > 0) {
+        noResultRow.remove();
+    }
+}
+
+// View case details in modal
+function viewCase(id) {
+    fetch(`/cases/get/${id}`)
+        .then(res => res.json())
+        .then(data => {
+            if(data && !data.error) {
+                const statusClass = (data.status || 'active').toLowerCase();
+                const statusColor = {
+                    'active': '#e3f5ec',
+                    'pending': '#fff3e0',
+                    'closed': '#ececec',
+                    'appealed': '#fee2e2'
+                }[statusClass] || '#f0ede8';
+                
+                const statusTextColor = {
+                    'active': '#1e6f4c',
+                    'pending': '#c47a2e',
+                    'closed': '#6b6b6b',
+                    'appealed': '#b3402a'
+                }[statusClass] || '#5a6e64';
+                
+                const html = `
+                    <div class="details-section">
+                        <div class="details-label">CASE TITLE</div>
+                        <div class="details-value" style="font-size: 1.2rem; font-weight: 600;">${escapeHtml(data.title || 'N/A')}</div>
+                    </div>
+                    
+                    <div class="details-grid">
+                        <div class="info-card">
+                            <div class="details-label">CASE NUMBER</div>
+                            <div class="details-value"><code>${escapeHtml(data.case_number || 'N/A')}</code></div>
+                        </div>
+                        <div class="info-card">
+                            <div class="details-label">STATUS</div>
+                            <div class="details-value">
+                                <span class="status-badge status-${statusClass}" style="background: ${statusColor}; color: ${statusTextColor}; padding: 6px 16px;">
+                                    ${escapeHtml(data.status || 'Active')}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <div class="details-label">CASE TYPE</div>
+                            <div class="details-value">${escapeHtml(data.case_type || 'N/A')}</div>
+                        </div>
+                        <div class="info-card">
+                            <div class="details-label">FILED DATE</div>
+                            <div class="details-value">${data.filing_date ? new Date(data.filing_date).toLocaleDateString() : 'N/A'}</div>
+                        </div>
+                        <div class="info-card">
+                            <div class="details-label">CLOSING DATE</div>
+                            <div class="details-value">${data.closing_date ? new Date(data.closing_date).toLocaleDateString() : 'N/A'}</div>
+                        </div>
+                        <div class="info-card">
+                            <div class="details-label">ASSIGNED LAWYER</div>
+                            <div class="details-value">${escapeHtml(data.assigned_lawyer_name || 'Not assigned')}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="details-section">
+                        <div class="details-label">CLIENT INFORMATION</div>
+                        <div class="details-grid">
+                            <div class="info-card">
+                                <div class="details-label">CLIENT NAME</div>
+                                <div class="details-value"><i class="fas fa-user"></i> ${escapeHtml(data.client_name || 'N/A')}</div>
+                            </div>
+                            <div class="info-card">
+                                <div class="details-label">CONTACT DETAILS</div>
+                                <div class="details-value"><i class="fas fa-phone-alt"></i> ${escapeHtml(data.client_contact || 'No contact provided')}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="details-section">
+                        <div class="details-label">DESCRIPTION / NOTES</div>
+                        <div class="info-card" style="background: #faf8f3;">
+                            <div class="details-value" style="line-height: 1.6; white-space: pre-wrap;">${escapeHtml(data.description || 'No description provided.')}</div>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('viewDetailsContent').innerHTML = html;
+                viewModal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            } else {
+                alert('Case details not found');
+            }
+        })
+        .catch(err => {
+            console.error('View error:', err);
+            alert('Could not load case details. Please try again.');
+        });
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
+}
+
+// EDIT CASE - Fully functional
+window.editCase = async function(id) {
+    try {
+        const response = await fetch(`/cases/get/${id}`);
+        if (!response.ok) throw new Error('Failed to fetch case data');
+        const caseData = await response.json();
+        
+        if (!caseData || caseData.error || !caseData.id) {
+            throw new Error('Case data not found');
+        }
+        
+        // Populate all form fields
+        document.getElementById('caseId').value = caseData.id;
+        document.getElementById('caseTitle').value = caseData.title || '';
+        document.getElementById('caseNumber').value = caseData.case_number || '';
+        document.getElementById('clientName').value = caseData.client_name || '';
+        document.getElementById('clientContact').value = caseData.client_contact || '';
+        document.getElementById('caseType').value = caseData.case_type || '';
+        document.getElementById('caseStatus').value = caseData.status || 'Active';
+        document.getElementById('filingDate').value = caseData.filing_date || '';
+        document.getElementById('closingDate').value = caseData.closing_date || '';
+        document.getElementById('caseDescription').value = caseData.description || '';
+        
+        const lawyerSelect = document.getElementById('assignedLawyer');
+        if (caseData.assigned_lawyer_id) {
+            lawyerSelect.value = caseData.assigned_lawyer_id;
+        } else {
+            lawyerSelect.value = '';
+        }
+        
+        // Update modal for edit mode
+        modalTitle.innerHTML = `<i class="fas fa-edit"></i> Edit Case`;
+        form.action = `/cases/update/${caseData.id}`;
+        form.method = "POST";
+        
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        
+    } catch (error) {
+        console.error('Edit error:', error);
+        alert('Could not load case details for editing. Please refresh and try again.');
+    }
+};
+
+// Delete Case function
+window.deleteCase = function(id) {
+    if (confirm('⚠️ Are you sure you want to delete this case?\n\nThis action cannot be undone.')) {
+        window.location.href = `/cases/delete/${id}`;
+    }
+};
+
+// Reset form to create mode
+function resetFormToCreate() {
+    form.action = "/cases/create";
+    document.getElementById('caseId').value = '';
+    modalTitle.innerHTML = `<i class="fas fa-folder-plus"></i> Add New Case`;
+    form.reset();
+}
+
+// Override newCaseButton
+if (newCaseBtn) {
+    newCaseBtn.onclick = function() {
+        resetFormToCreate();
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    };
+}
+
+// Form submission
+form.onsubmit = function(e) {
+    console.log('Form submitting to:', form.action);
+    return true;
+};
+
+// Initialize on load
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', filterCases);
+    }
+    
+    const flashMessages = document.querySelectorAll('.flash-message');
+    flashMessages.forEach(msg => {
+        setTimeout(() => {
+            msg.style.opacity = '0';
+            setTimeout(() => msg.remove(), 300);
+        }, 5000);
+    });
+});
+
+console.log('Case Management Page Loaded - View modal ready');
+</script>
+</body>
+</html>
