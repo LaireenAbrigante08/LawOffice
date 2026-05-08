@@ -163,8 +163,6 @@
         margin: 0 6px; 
         cursor: pointer; 
         color: #9aa99f; 
-        transition: color 0.2s ease;
-        font-size: 1.1rem;
     }
     .action-icons i:hover { color: #b8863f; }
 
@@ -252,13 +250,6 @@
         border: 1.5px solid #e3e2dc;
         border-radius: 16px;
         font-family: 'Inter', sans-serif;
-        transition: border 0.2s;
-    }
-    .form-group input:focus, 
-    .form-group select:focus, 
-    .form-group textarea:focus {
-        outline: none;
-        border-color: #b8863f;
     }
 
     .form-group textarea {
@@ -277,52 +268,14 @@
         cursor: pointer;
         margin-top: 10px;
         font-size: 1.05rem;
-        transition: transform 0.15s;
     }
     .btn-save:hover {
         transform: translateY(-2px);
     }
 
-    /* View Details Modal specific styles */
-    .view-detail-row {
-        display: flex;
-        padding: 12px 0;
-        border-bottom: 1px solid #f0ece4;
-    }
-    .view-detail-label {
-        font-weight: 600;
-        width: 140px;
-        flex-shrink: 0;
-        color: #2c5a4a;
-    }
-    .view-detail-value {
-        color: #2d3e36;
-        flex: 1;
-        word-break: break-word;
-    }
-    .view-detail-value a {
-        color: #b8863f;
-        text-decoration: none;
-    }
-    .file-link {
-        background: #f7f5ef;
-        display: inline-block;
-        padding: 6px 12px;
-        border-radius: 30px;
-        font-size: 0.85rem;
-    }
-    .file-link i {
-        margin-right: 6px;
-    }
-    .no-file {
-        background: #f5f0e8;
-        color: #9a8e7a;
-    }
-
     @media (max-width: 780px) {
         .sidebar { width: 90px; }
         .sidebar a span { display: none; }
-        .view-detail-label { width: 110px; }
     }
 </style>
 </head>
@@ -382,6 +335,7 @@
             <table id="ordersTable">
                 <thead>
                     <tr>
+                        <th>Order No.</th>
                         <th>Case Title</th>
                         <th>Order Type</th>
                         <th>Issued Date</th>
@@ -397,6 +351,7 @@
                     <% if (orders && orders.length > 0) { %>
                         <% orders.forEach(function(o) { %>
                             <tr>
+                                <td><strong><%= o.order_number %></strong></td>
                                 <td><%= o.case_title || '—' %></td>
                                 <td><span class="order-type-badge"><%= o.order_type %></span></td>
                                 <td><%= o.issued_date ? o.issued_date.toISOString().split('T')[0] : '—' %></td>
@@ -408,10 +363,10 @@
                                 </td>
                                 <td><span class="status-badge status-<%= (o.status || 'received').toLowerCase().replace(/ /g, '-') %>"><%= o.status || 'Received' %></span></td>
                                 <td class="action-icons">
-                                    <i class="fas fa-eye" onclick="viewOrder(<%= o.id %>)" title="View Details"></i>
-                                    <i class="fas fa-edit" onclick="editOrder(<%= o.id %>)" title="Edit Order"></i>
-                                    <i class="fas fa-download" onclick="downloadOrder(<%= o.id %>)" title="Download Document"></i>
-                                    <i class="fas fa-trash" onclick="deleteOrder(<%= o.id %>)" title="Delete Order"></i>
+                                    <i class="fas fa-eye" onclick="viewOrder(<%= o.id %>)" title="View"></i>
+                                    <i class="fas fa-edit" onclick="editOrder(<%= o.id %>)" title="Edit"></i>
+                                    <i class="fas fa-download" onclick="downloadOrder(<%= o.id %>)" title="Download"></i>
+                                    <i class="fas fa-trash" onclick="deleteOrder(<%= o.id %>)" title="Delete"></i>
                                 </td>
                             </tr>
                         <% }); %>
@@ -425,7 +380,7 @@
         </div>
     </div>
 
-    <!-- MODAL FOR CREATE / EDIT FORM -->
+    <!-- FIXED MODAL -->
     <div id="orderModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -435,6 +390,11 @@
             <div class="modal-body">
                 <form method="POST" action="/court-orders/create" id="orderForm" enctype="multipart/form-data">
                     <input type="hidden" name="id" id="orderId">
+
+                    <div class="form-group">
+                        <label>Order Number *</label>
+                        <input type="text" name="order_number" id="orderNumber" required>
+                    </div>
 
                     <div class="form-group">
                         <label>Case Title *</label>
@@ -511,180 +471,32 @@
         </div>
     </div>
 
-    <!-- ========== FIXED VIEW ORDER DETAILS MODAL (Separate modal for read-only view) ========== -->
-    <div id="viewOrderModal" class="modal">
-        <div class="modal-content" style="max-width: 720px;">
-            <div class="modal-header">
-                <h3><i class="fas fa-gavel"></i> Court Order Details</h3>
-                <span class="close" id="closeViewModal">×</span>
-            </div>
-            <div class="modal-body" id="viewOrderBody">
-                <div style="text-align:center; padding: 20px;">Loading order details...</div>
-            </div>
-        </div>
-    </div>
-
     <script>
-        // DOM elements
         const orderModal = document.getElementById('orderModal');
-        const viewModal = document.getElementById('viewOrderModal');
         const newOrderBtn = document.getElementById('newOrderButton');
         const closeModalBtn = document.getElementById('closeOrderModal');
-        const closeViewModalBtn = document.getElementById('closeViewModal');
         const orderForm = document.getElementById('orderForm');
         const modalTitle = document.getElementById('modalTitle');
 
-        // Helper to close modals
-        function closeOrderModal() {
-            orderModal.style.display = 'none';
-        }
-        function closeViewModal() {
-            viewModal.style.display = 'none';
-        }
         function openAddOrderModal() {
             orderForm.reset();
             document.getElementById('orderId').value = '';
             modalTitle.innerHTML = `<i class="fas fa-file-alt"></i> Add Court Order`;
             orderForm.action = "/court-orders/create";
-            // Clear file input
-            const fileInput = document.querySelector('input[name="order_file"]');
-            if(fileInput) fileInput.value = '';
             orderModal.style.display = 'flex';
+        }
+
+        function closeOrderModal() {
+            orderModal.style.display = 'none';
         }
 
         newOrderBtn.onclick = openAddOrderModal;
         closeModalBtn.onclick = closeOrderModal;
-        if(closeViewModalBtn) closeViewModalBtn.onclick = closeViewModal;
 
         window.onclick = function(event) {
             if (event.target === orderModal) closeOrderModal();
-            if (event.target === viewModal) closeViewModal();
         };
 
-        // Helper function to determine file icon based on filename
-        function getFileIcon(filename) {
-            if (!filename) return 'fa-file-alt';
-            const ext = filename.split('.').pop().toLowerCase();
-            if (ext === 'pdf') return 'fa-file-pdf';
-            if (ext === 'doc' || ext === 'docx') return 'fa-file-word';
-            if (ext === 'jpg' || ext === 'jpeg' || ext === 'png') return 'fa-file-image';
-            return 'fa-file-alt';
-        }
-
-        // FIXED viewOrder function: fetch full details and display in dedicated modal
-        // Now properly shows attached document with filename and download link
-        function viewOrder(id) {
-            if (!id) return;
-            // Show loading state
-            document.getElementById('viewOrderBody').innerHTML = '<div style="text-align:center; padding: 20px;"><i class="fas fa-spinner fa-pulse"></i> Loading order details...</div>';
-            viewModal.style.display = 'flex';
-            
-            fetch(`/court-orders/${id}`)
-                .then(res => {
-                    if (!res.ok) throw new Error('Failed to fetch order');
-                    return res.json();
-                })
-                .then(order => {
-                    const formatDate = (dateStr) => {
-                        if (!dateStr) return '—';
-                        const d = new Date(dateStr);
-                        if (isNaN(d.getTime())) return '—';
-                        return d.toISOString().split('T')[0];
-                    };
-                    
-                    // Check if there's an attached document (filename or original_filename)
-                    const hasFile = order.filename || order.original_filename;
-                    const fileName = order.original_filename || order.filename || '';
-                    const fileIcon = getFileIcon(fileName);
-                    
-                    let fileHtml = '';
-                    if (hasFile && fileName) {
-                        fileHtml = `
-                            <a href="/court-orders/download/${order.id}" class="file-link" target="_blank" style="display: inline-flex; align-items: center; gap: 8px;">
-                                <i class="fas ${fileIcon}" style="font-size: 1.1rem;"></i>
-                                <span>${escapeHtml(fileName)}</span>
-                                <i class="fas fa-download" style="font-size: 0.75rem; opacity: 0.7;"></i>
-                            </a>
-                        `;
-                    } else {
-                        fileHtml = `<span class="file-link no-file"><i class="fas fa-ban"></i> No attached document</span>`;
-                    }
-                    
-                    const detailsHtml = `
-                        <div class="view-detail-row">
-                            <div class="view-detail-label">Order Number:</div>
-                            <div class="view-detail-value"><strong>${escapeHtml(order.order_number)}</strong></div>
-                        </div>
-                        <div class="view-detail-row">
-                            <div class="view-detail-label">Case Title:</div>
-                            <div class="view-detail-value">${escapeHtml(order.case_title || '—')}</div>
-                        </div>
-                        <div class="view-detail-row">
-                            <div class="view-detail-label">Order Type:</div>
-                            <div class="view-detail-value"><span class="order-type-badge">${escapeHtml(order.order_type)}</span></div>
-                        </div>
-                        <div class="view-detail-row">
-                            <div class="view-detail-label">Issued Date:</div>
-                            <div class="view-detail-value">${formatDate(order.issued_date)}</div>
-                        </div>
-                        <div class="view-detail-row">
-                            <div class="view-detail-label">Received Date:</div>
-                            <div class="view-detail-value">${formatDate(order.received_date)}</div>
-                        </div>
-                        <div class="view-detail-row">
-                            <div class="view-detail-label">Judge:</div>
-                            <div class="view-detail-value">${escapeHtml(order.judge_name || '—')}</div>
-                        </div>
-                        <div class="view-detail-row">
-                            <div class="view-detail-label">Court Branch:</div>
-                            <div class="view-detail-value">${escapeHtml(order.court_branch || '—')}</div>
-                        </div>
-                        <div class="view-detail-row">
-                            <div class="view-detail-label">Status:</div>
-                            <div class="view-detail-value"><span class="status-badge status-${(order.status || 'received').toLowerCase().replace(/ /g, '-')}">${escapeHtml(order.status || 'Received')}</span></div>
-                        </div>
-                        <div class="view-detail-row">
-                            <div class="view-detail-label">Compliance Date:</div>
-                            <div class="view-detail-value">${formatDate(order.compliance_date)}</div>
-                        </div>
-                        <div class="view-detail-row">
-                            <div class="view-detail-label">Summary:</div>
-                            <div class="view-detail-value">${escapeHtml(order.summary) || '—'}</div>
-                        </div>
-                        <div class="view-detail-row">
-                            <div class="view-detail-label">Key Provisions:</div>
-                            <div class="view-detail-value">${escapeHtml(order.key_provisions) || '—'}</div>
-                        </div>
-                        <div class="view-detail-row">
-                            <div class="view-detail-label">Attached Document:</div>
-                            <div class="view-detail-value">${fileHtml}</div>
-                        </div>
-                    `;
-                    document.getElementById('viewOrderBody').innerHTML = detailsHtml;
-                })
-                .catch(err => {
-                    console.error('View order error:', err);
-                    document.getElementById('viewOrderBody').innerHTML = `
-                        <div style="color:#c95b48; padding:20px; text-align:center;">
-                            <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 12px; display: block;"></i>
-                            Error loading order details. Please try again.
-                            <div style="font-size: 0.85rem; margin-top: 12px; color: #9a8e7a;">${err.message}</div>
-                        </div>`;
-                });
-        }
-
-        // simple XSS prevention helper
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
-        }
-
-        // editOrder: using main modal and pre-populate data
         function editOrder(id) {
             fetch(`/court-orders/${id}`)
                 .then(res => res.json())
@@ -701,61 +513,42 @@
                     document.getElementById('keyProvisions').value = order.key_provisions || '';
                     document.getElementById('status').value = order.status || 'Received';
                     document.getElementById('complianceDate').value = order.compliance_date ? order.compliance_date.split('T')[0] : '';
-                    
+
                     modalTitle.innerHTML = `<i class="fas fa-edit"></i> Edit Court Order`;
                     orderForm.action = `/court-orders/update/${id}`;
                     orderModal.style.display = 'flex';
                 })
-                .catch(err => alert("Error loading order data for editing: " + err.message));
+                .catch(err => alert("Error loading order data"));
         }
 
-        // Download function — triggers backend download route
-        function downloadOrder(id) {
-            window.location.href = `/court-orders/download/${id}`;
-        }
+        function viewOrder(id) { window.location.href = `/court-orders/view/${id}`; }
+        function downloadOrder(id) { window.location.href = `/court-orders/download/${id}`; }
 
-        // DELETE order with confirmation and reload
         function deleteOrder(id) {
-            if (confirm('⚠️ Delete this court order permanently? This action cannot be undone.')) {
+            if (confirm('Delete this court order?')) {
                 fetch(`/court-orders/delete/${id}`, { method: 'DELETE' })
-                    .then(response => {
-                        if (response.ok) {
-                            location.reload();
-                        } else {
-                            alert('Error deleting order; please try again.');
-                        }
-                    })
-                    .catch(() => alert('Network error. Could not delete order.'));
+                    .then(() => location.reload());
             }
         }
 
-        // Filter orders
         function filterOrders() {
             const status = document.getElementById('statusFilter').value.toLowerCase();
             const type = document.getElementById('typeFilter').value;
             const search = document.getElementById('searchInput').value.toLowerCase();
             const rows = document.querySelectorAll('#ordersTable tbody tr');
-            
+
             rows.forEach(row => {
-                if (row.cells.length < 9) return;
                 const rowText = row.innerText.toLowerCase();
                 const statusCell = row.cells[8]?.innerText.toLowerCase() || '';
-                const rawTypeCell = row.cells[2]?.innerText || '';
-                
-                let matchStatus = status === 'all' || statusCell.includes(status);
-                let matchType = type === 'all' || rawTypeCell === type;
+                const typeCell = row.cells[2]?.innerText || '';
+
+                const matchStatus = status === 'all' || statusCell.includes(status);
+                const matchType = type === 'all' || typeCell === type;
                 const matchSearch = rowText.includes(search);
-                
+
                 row.style.display = (matchStatus && matchType && matchSearch) ? '' : 'none';
             });
         }
-
-        // Ensure any global errors not breaking
-        window.filterOrders = filterOrders;
-        window.viewOrder = viewOrder;
-        window.editOrder = editOrder;
-        window.downloadOrder = downloadOrder;
-        window.deleteOrder = deleteOrder;
     </script>
 </body>
-</html>
+</html>xx
