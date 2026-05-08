@@ -382,7 +382,6 @@
             <table id="ordersTable">
                 <thead>
                     <tr>
-                        <th>Order No.</th>
                         <th>Case Title</th>
                         <th>Order Type</th>
                         <th>Issued Date</th>
@@ -398,7 +397,6 @@
                     <% if (orders && orders.length > 0) { %>
                         <% orders.forEach(function(o) { %>
                             <tr>
-                                <td><strong><%= o.order_number %></strong></td>
                                 <td><%= o.case_title || '—' %></td>
                                 <td><span class="order-type-badge"><%= o.order_type %></span></td>
                                 <td><%= o.issued_date ? o.issued_date.toISOString().split('T')[0] : '—' %></td>
