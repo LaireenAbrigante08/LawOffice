@@ -584,29 +584,29 @@ body {
         <div class="page-desc">Secure case management & client administration dashboard</div>
     </div>
     
-    <!-- Statistics cards (clickable) -->
+    <!-- Statistics cards - CORRECTED: Active Cases from cases table, Staff from users table -->
     <div class="stats-row">
         <div class="stat-card" onclick="window.location.href='/cases'">
             <div class="stat-info">
                 <h4>Active Cases</h4>
-                <div class="stat-number"><%= typeof activeCases !== 'undefined' ? activeCases : 24 %></div>
-                <small style="color:#789e8a;">+3 this month</small>
+                <div class="stat-number"><%= typeof activeCases !== 'undefined' ? activeCases : 0 %></div>
+                <small style="color:#789e8a;">From cases table (status = Active)</small>
             </div>
             <div class="stat-icon"><i class="fas fa-folder-open"></i></div>
         </div>
-        <div class="stat-card" onclick="window.location.href='/cases'">
+        <div class="stat-card" onclick="window.location.href='/users'">
             <div class="stat-info">
-                <h4>Clients</h4>
-                <div class="stat-number"><%= typeof totalClients !== 'undefined' ? totalClients : 142 %></div>
-                <small style="color:#789e8a;">retained counsel</small>
+                <h4>Legal Staff</h4>
+                <div class="stat-number"><%= typeof totalStaff !== 'undefined' ? totalStaff : 0 %></div>
+                <small style="color:#789e8a;">Registered users</small>
             </div>
             <div class="stat-icon"><i class="fas fa-users"></i></div>
         </div>
         <div class="stat-card" onclick="window.location.href='/hearings'">
             <div class="stat-info">
-                <h4>Upcoming</h4>
-                <div class="stat-number"><%= typeof upcomingHearings !== 'undefined' ? upcomingHearings : 8 %></div>
-                <small style="color:#789e8a;">hearings & filings</small>
+                <h4>Upcoming Hearings</h4>
+                <div class="stat-number"><%= typeof upcomingHearings !== 'undefined' ? upcomingHearings : 0 %></div>
+                <small style="color:#789e8a;">Scheduled hearings</small>
             </div>
             <div class="stat-icon"><i class="fas fa-calendar-week"></i></div>
         </div>
