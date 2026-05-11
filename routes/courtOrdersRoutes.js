@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs'); // Add this line
+const fs = require('fs');
 const { isAuthenticated } = require('../middleware/auth');
 const db = require('../config/db');
 
@@ -49,7 +49,8 @@ router.get('/', isAuthenticated, (req, res) => {
             user: req.session.username || 'Attorney',
             orders: orders || [],
             success: req.query.success || null,
-            error: req.query.error || null
+            error: req.query.error || null,
+            viewId: req.query.view || null
         });
     });
 });
@@ -161,17 +162,10 @@ router.delete('/delete/:id', isAuthenticated, (req, res) => {
     });
 });
 
-// View order (for detailed view page)
+// View order - redirect to main page with view parameter
 router.get('/view/:id', isAuthenticated, (req, res) => {
-    db.query('SELECT * FROM court_orders WHERE id = ?', [req.params.id], (err, results) => {
-        if (err || results.length === 0) {
-            return res.redirect('/court-orders?error=Order not found');
-        }
-        res.render('court-orders-view', { 
-            order: results[0],
-            user: req.session.username || 'Attorney'
-        });
-    });
+    // Redirect to main page with view parameter to open view modal
+    res.redirect(`/court-orders?view=${req.params.id}`);
 });
 
 // Download order file
