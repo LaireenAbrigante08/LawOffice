@@ -166,7 +166,7 @@
     }
     .action-icons i:hover { color: #b8863f; }
 
-    /* ==================== FIXED MODAL STYLES ==================== */
+    /* Modal Styles */
     .modal {
         display: none;
         position: fixed;
@@ -252,6 +252,13 @@
         font-family: 'Inter', sans-serif;
     }
 
+    .form-group input:read-only,
+    .form-group select:disabled,
+    .form-group textarea:read-only {
+        background-color: #f5f5f5;
+        cursor: not-allowed;
+    }
+
     .form-group textarea {
         resize: vertical;
         min-height: 90px;
@@ -273,6 +280,24 @@
         transform: translateY(-2px);
     }
 
+    .alert-success {
+        background: #e3f5ec;
+        color: #1e6f4c;
+        padding: 12px 18px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        border-left: 4px solid #1e6f4c;
+    }
+
+    .alert-error {
+        background: #fff1f0;
+        color: #c95b48;
+        padding: 12px 18px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        border-left: 4px solid #c95b48;
+    }
+
     @media (max-width: 780px) {
         .sidebar { width: 90px; }
         .sidebar a span { display: none; }
@@ -290,12 +315,12 @@
         </div>
 
         <% if (typeof success !== 'undefined' && success) { %>
-            <div style="background: #e3f5ec; color: #1e6f4c; padding: 12px 18px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #1e6f4c;">
+            <div class="alert-success">
                 <i class="fas fa-check-circle"></i> <%= success %>
             </div>
         <% } %>
         <% if (typeof error !== 'undefined' && error) { %>
-            <div style="background: #fff1f0; color: #c95b48; padding: 12px 18px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid #c95b48;">
+            <div class="alert-error">
                 <i class="fas fa-exclamation-circle"></i> <%= error %>
             </div>
         <% } %>
@@ -380,7 +405,7 @@
         </div>
     </div>
 
-    <!-- FIXED MODAL -->
+    <!-- Modal -->
     <div id="orderModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -479,6 +504,9 @@
         const modalTitle = document.getElementById('modalTitle');
 
         function openAddOrderModal() {
+            // Reset to editable state
+            enableFormFields(true);
+            document.querySelector('.btn-save').style.display = 'block';
             orderForm.reset();
             document.getElementById('orderId').value = '';
             modalTitle.innerHTML = `<i class="fas fa-file-alt"></i> Add Court Order`;
@@ -488,6 +516,22 @@
 
         function closeOrderModal() {
             orderModal.style.display = 'none';
+            // Reset form when closing
+            enableFormFields(true);
+            document.querySelector('.btn-save').style.display = 'block';
+            orderForm.reset();
+        }
+
+        function enableFormFields(editable) {
+            const inputs = document.querySelectorAll('#orderForm input, #orderForm select, #orderForm textarea');
+            inputs.forEach(input => {
+                if (input.type !== 'file') {
+                    input.readOnly = !editable;
+                }
+                if (input.tagName === 'SELECT') {
+                    input.disabled = !editable;
+                }
+            });
         }
 
         newOrderBtn.onclick = openAddOrderModal;
@@ -497,10 +541,43 @@
             if (event.target === orderModal) closeOrderModal();
         };
 
+        function viewOrder(id) {
+            fetch(`/court-orders/${id}`)
+                .then(res => res.json())
+                .then(order => {
+                    // Fill form with data
+                    document.getElementById('orderId').value = order.id;
+                    document.getElementById('orderNumber').value = order.order_number;
+                    document.getElementById('caseTitle').value = order.case_title || '';
+                    document.getElementById('orderType').value = order.order_type;
+                    document.getElementById('issuedDate').value = order.issued_date ? order.issued_date.split('T')[0] : '';
+                    document.getElementById('receivedDate').value = order.received_date ? order.received_date.split('T')[0] : '';
+                    document.getElementById('judgeName').value = order.judge_name || '';
+                    document.getElementById('courtBranch').value = order.court_branch || '';
+                    document.getElementById('summary').value = order.summary || '';
+                    document.getElementById('keyProvisions').value = order.key_provisions || '';
+                    document.getElementById('status').value = order.status || 'Received';
+                    document.getElementById('complianceDate').value = order.compliance_date ? order.compliance_date.split('T')[0] : '';
+                    
+                    // Set to read-only mode
+                    enableFormFields(false);
+                    document.querySelector('.btn-save').style.display = 'none';
+                    
+                    modalTitle.innerHTML = `<i class="fas fa-eye"></i> View Court Order`;
+                    orderModal.style.display = 'flex';
+                })
+                .catch(err => alert("Error loading order data"));
+        }
+
         function editOrder(id) {
             fetch(`/court-orders/${id}`)
                 .then(res => res.json())
                 .then(order => {
+                    // Enable editing
+                    enableFormFields(true);
+                    document.querySelector('.btn-save').style.display = 'block';
+                    
+                    // Fill form with data
                     document.getElementById('orderId').value = order.id;
                     document.getElementById('orderNumber').value = order.order_number;
                     document.getElementById('caseTitle').value = order.case_title || '';
@@ -521,8 +598,9 @@
                 .catch(err => alert("Error loading order data"));
         }
 
-        function viewOrder(id) { window.location.href = `/court-orders/view/${id}`; }
-        function downloadOrder(id) { window.location.href = `/court-orders/download/${id}`; }
+        function downloadOrder(id) { 
+            window.location.href = `/court-orders/download/${id}`; 
+        }
 
         function deleteOrder(id) {
             if (confirm('Delete this court order?')) {
@@ -549,6 +627,15 @@
                 row.style.display = (matchStatus && matchType && matchSearch) ? '' : 'none';
             });
         }
+
+        // Check if we need to open view modal on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const viewId = urlParams.get('view');
+            if (viewId) {
+                viewOrder(viewId);
+            }
+        });
     </script>
 </body>
-</html>xx
+</html>
