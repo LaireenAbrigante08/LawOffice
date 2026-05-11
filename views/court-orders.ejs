@@ -57,6 +57,11 @@
         border-radius: 50%; 
         color: #b8863f; 
     }
+    .page-desc {
+        color: #5a7a6e;
+        margin-top: 8px;
+        font-size: 0.9rem;
+    }
 
     .action-bar { 
         display: flex; 
@@ -75,6 +80,8 @@
         border: 1.5px solid #e3e2dc;
         background: white;
         font-family: 'Inter', sans-serif;
+        cursor: pointer;
+        font-size: 0.9rem;
     }
 
     .search-box {
@@ -84,12 +91,14 @@
         padding: 4px 16px;
         border-radius: 44px;
         align-items: center;
+        border: 1.5px solid #e3e2dc;
     }
     .search-box input { 
         border: none; 
         padding: 10px 0; 
         width: 240px; 
         outline: none; 
+        font-size: 0.9rem;
     }
 
     .btn-primary {
@@ -103,38 +112,62 @@
         display: inline-flex;
         align-items: center;
         gap: 10px;
+        transition: all 0.2s;
+        font-size: 0.9rem;
     }
-    .btn-primary:hover { transform: translateY(-2px); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
 
+    /* Table Container */
     .orders-table-container {
         background: white;
         border-radius: 24px;
-        overflow: hidden;
+        overflow-x: auto;
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
     }
 
-    table { width: 100%; border-collapse: collapse; }
+    table { 
+        width: 100%; 
+        border-collapse: collapse;
+        min-width: 1000px;
+    }
+
     th {
         text-align: left;
-        padding: 18px 20px;
+        padding: 18px 16px;
         background: #faf8f3;
         font-weight: 600;
         color: #2c5a4a;
         border-bottom: 2px solid #e9e2d4;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
+
     td { 
-        padding: 16px 20px; 
+        padding: 16px; 
         border-bottom: 1px solid #f0ece4; 
         color: #2d3e36; 
+        font-size: 0.9rem;
     }
+
     tr:hover { background: #fefcf7; }
 
+    /* Summary column - cut off with ellipsis */
+    .summary-cell {
+        max-width: 250px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Status badges */
     .status-badge {
         display: inline-block;
         padding: 5px 12px;
         border-radius: 50px;
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         font-weight: 600;
+        white-space: nowrap;
     }
     .status-received { background: #e3f5ec; color: #1e6f4c; }
     .status-complied { background: #d4f0f0; color: #0e6b6b; }
@@ -142,6 +175,7 @@
     .status-pending-action { background: #fff3e0; color: #c47a2e; }
     .status-archived { background: #ececec; color: #6b6b6b; }
 
+    /* Order type badge */
     .order-type-badge {
         display: inline-block;
         padding: 4px 10px;
@@ -150,19 +184,16 @@
         font-weight: 600;
         background: #e8e0d0;
         color: #8b6914;
-    }
-
-    .summary-cell {
-        max-width: 280px;
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
     }
 
+    /* Action icons */
     .action-icons i { 
-        margin: 0 6px; 
+        margin: 0 5px; 
         cursor: pointer; 
-        color: #9aa99f; 
+        color: #9aa99f;
+        transition: color 0.2s;
+        font-size: 1.1rem;
     }
     .action-icons i:hover { color: #b8863f; }
 
@@ -172,7 +203,7 @@
         position: fixed;
         top: 0; left: 0;
         width: 100%; height: 100%;
-        background: rgba(26, 38, 32, 0.65);
+        background: rgba(26, 38, 32, 0.75);
         backdrop-filter: blur(8px);
         justify-content: center;
         align-items: center;
@@ -182,17 +213,29 @@
     .modal-content {
         background: white;
         border-radius: 24px;
-        width: 620px;
+        width: 650px;
         max-width: 95%;
-        max-height: 92vh;
+        max-height: 90vh;
         overflow: hidden;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
         display: flex;
         flex-direction: column;
+        animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            transform: translateY(-30px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
     }
 
     .modal-header {
-        background: #1e3f36;
+        background: linear-gradient(135deg, #1e3f36, #14332b);
         padding: 20px 24px;
         display: flex;
         justify-content: space-between;
@@ -205,6 +248,7 @@
     .modal-header h3 {
         margin: 0;
         font-family: 'Cormorant Garamond', serif;
+        font-size: 1.5rem;
     }
 
     .close {
@@ -218,6 +262,7 @@
         justify-content: center;
         border-radius: 50%;
         transition: all 0.2s;
+        line-height: 1;
     }
     .close:hover {
         background: rgba(255,255,255,0.3);
@@ -228,6 +273,33 @@
         padding: 28px;
         overflow-y: auto;
         flex: 1;
+    }
+
+    /* View Details Styles */
+    .detail-section {
+        margin-bottom: 24px;
+        border-bottom: 1px solid #f0ece4;
+        padding-bottom: 16px;
+    }
+    .detail-label {
+        font-weight: 700;
+        color: #2c5a4a;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+    }
+    .detail-value {
+        color: #2d3e36;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        word-wrap: break-word;
+    }
+    .detail-value.full-text {
+        background: #f9f9f9;
+        padding: 12px;
+        border-radius: 12px;
+        border-left: 3px solid #b8863f;
     }
 
     .form-group {
@@ -250,12 +322,21 @@
         border: 1.5px solid #e3e2dc;
         border-radius: 16px;
         font-family: 'Inter', sans-serif;
+        font-size: 0.9rem;
+        transition: border-color 0.2s;
+    }
+
+    .form-group input:focus, 
+    .form-group select:focus, 
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #b8863f;
     }
 
     .form-group input:read-only,
     .form-group select:disabled,
     .form-group textarea:read-only {
-        background-color: #f5f5f5;
+        background-color: #f8f8f8;
         cursor: not-allowed;
     }
 
@@ -274,12 +355,32 @@
         font-weight: bold;
         cursor: pointer;
         margin-top: 10px;
-        font-size: 1.05rem;
+        font-size: 1rem;
+        transition: all 0.2s;
     }
     .btn-save:hover {
         transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
+    .btn-close-details {
+        background: #6c757d;
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 40px;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 10px;
+        font-size: 1rem;
+        transition: all 0.2s;
+    }
+    .btn-close-details:hover {
+        background: #5a6268;
+    }
+
+    /* Alert messages */
     .alert-success {
         background: #e3f5ec;
         color: #1e6f4c;
@@ -287,6 +388,7 @@
         border-radius: 12px;
         margin-bottom: 20px;
         border-left: 4px solid #1e6f4c;
+        animation: slideIn 0.3s ease;
     }
 
     .alert-error {
@@ -296,11 +398,29 @@
         border-radius: 12px;
         margin-bottom: 20px;
         border-left: 4px solid #c95b48;
+        animation: slideIn 0.3s ease;
     }
 
-    @media (max-width: 780px) {
-        .sidebar { width: 90px; }
-        .sidebar a span { display: none; }
+    @keyframes slideIn {
+        from {
+            transform: translateY(-20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .sidebar { width: 80px; }
+        .sidebar span { display: none; }
+        .main { padding: 20px; }
+        .action-bar { flex-direction: column; align-items: stretch; }
+        .filter-bar { flex-direction: column; }
+        .search-box { width: 100%; }
+        .search-box input { width: 100%; }
     }
 </style>
 </head>
@@ -377,40 +497,58 @@
                         <% orders.forEach(function(o) { %>
                             <tr>
                                 <td><strong><%= o.order_number %></strong></td>
-                                <td><%= o.case_title || '—' %></td>
+                                <td style="min-width: 180px;"><%= o.case_title || '—' %></td>
                                 <td><span class="order-type-badge"><%= o.order_type %></span></td>
                                 <td><%= o.issued_date ? o.issued_date.toISOString().split('T')[0] : '—' %></td>
                                 <td><%= o.received_date ? o.received_date.toISOString().split('T')[0] : '—' %></td>
                                 <td><%= o.judge_name || '—' %></td>
-                                <td><%= o.court_branch || '—' %></td>
-                                <td class="summary-cell" title="<%= o.summary || '' %>">
-                                    <%= o.summary ? o.summary.substring(0, 80) + (o.summary.length > 80 ? '...' : '') : '—' %>
+                                <td><%= o.court_branch || '—' %></div></td>
+                                <td class="summary-cell" title="Click View to see full details">
+                                    <%= o.summary ? (o.summary.length > 60 ? o.summary.substring(0, 60) + '...' : o.summary) : '—' %>
                                 </td>
                                 <td><span class="status-badge status-<%= (o.status || 'received').toLowerCase().replace(/ /g, '-') %>"><%= o.status || 'Received' %></span></td>
                                 <td class="action-icons">
-                                    <i class="fas fa-eye" onclick="viewOrder(<%= o.id %>)" title="View"></i>
-                                    <i class="fas fa-edit" onclick="editOrder(<%= o.id %>)" title="Edit"></i>
-                                    <i class="fas fa-download" onclick="downloadOrder(<%= o.id %>)" title="Download"></i>
-                                    <i class="fas fa-trash" onclick="deleteOrder(<%= o.id %>)" title="Delete"></i>
-                                </td>
+                                    <i class="fas fa-eye" onclick="viewOrder(<%= o.id %>)" title="View Full Details"></i>
+                                    <i class="fas fa-edit" onclick="editOrder(<%= o.id %>)" title="Edit Order"></i>
+                                    <i class="fas fa-download" onclick="downloadOrder(<%= o.id %>)" title="Download Document"></i>
+                                    <i class="fas fa-trash" onclick="deleteOrder(<%= o.id %>)" title="Delete Order"></i>
+                                 </td>
                             </tr>
                         <% }); %>
                     <% } else { %>
-                        <tr><td colspan="10" style="text-align:center; padding: 80px 20px;">
-                            No court orders found. Click "Add Court Order" to get started.
-                        </td></tr>
+                        <tr><td colspan="10" style="text-align:center; padding: 60px 20px;">
+                            <i class="fas fa-folder-open" style="font-size: 48px; color: #c0c0c0; margin-bottom: 16px; display: block;"></i>
+                            No court orders found. Click <strong>"Add Court Order"</strong> to get started.
+                         </td>
+                    </tr>
                     <% } %>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- Modal -->
+    <!-- View Details Modal (Read-only with full content) -->
+    <div id="viewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-eye"></i> Court Order Details</h3>
+                <span class="close" id="closeViewModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="viewDetailsContent">
+                    <!-- Dynamic content will be loaded here -->
+                </div>
+                <button class="btn-close-details" onclick="closeViewModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
     <div id="orderModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 id="modalTitle"><i class="fas fa-file-alt"></i> Add Court Order</h3>
-                <span class="close" id="closeOrderModal">×</span>
+                <span class="close" id="closeOrderModal">&times;</span>
             </div>
             <div class="modal-body">
                 <form method="POST" action="/court-orders/create" id="orderForm" enctype="multipart/form-data">
@@ -461,12 +599,12 @@
 
                     <div class="form-group">
                         <label>Summary</label>
-                        <textarea name="summary" id="summary" rows="3"></textarea>
+                        <textarea name="summary" id="summary" rows="3" placeholder="Brief summary of the court order..."></textarea>
                     </div>
 
                     <div class="form-group">
                         <label>Key Provisions</label>
-                        <textarea name="key_provisions" id="keyProvisions" rows="3"></textarea>
+                        <textarea name="key_provisions" id="keyProvisions" rows="3" placeholder="List key provisions or important details..."></textarea>
                     </div>
 
                     <div class="form-group">
@@ -486,8 +624,9 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Upload Document</label>
+                        <label>Upload Document (PDF, DOC, DOCX)</label>
                         <input type="file" name="order_file" accept=".pdf,.doc,.docx">
+                        <small style="color: #666; display: block; margin-top: 5px;">Max file size: 10MB</small>
                     </div>
 
                     <button class="btn-save" type="submit"><i class="fas fa-save"></i> Save Court Order</button>
@@ -497,31 +636,42 @@
     </div>
 
     <script>
+        // DOM Elements
         const orderModal = document.getElementById('orderModal');
+        const viewModal = document.getElementById('viewModal');
         const newOrderBtn = document.getElementById('newOrderButton');
-        const closeModalBtn = document.getElementById('closeOrderModal');
+        const closeOrderModalBtn = document.getElementById('closeOrderModal');
+        const closeViewModalBtn = document.getElementById('closeViewModal');
         const orderForm = document.getElementById('orderForm');
         const modalTitle = document.getElementById('modalTitle');
 
+        // Open Add Modal
         function openAddOrderModal() {
-            // Reset to editable state
-            enableFormFields(true);
-            document.querySelector('.btn-save').style.display = 'block';
-            orderForm.reset();
-            document.getElementById('orderId').value = '';
+            resetFormToEditable();
             modalTitle.innerHTML = `<i class="fas fa-file-alt"></i> Add Court Order`;
             orderForm.action = "/court-orders/create";
             orderModal.style.display = 'flex';
         }
 
+        // Close Modals
         function closeOrderModal() {
             orderModal.style.display = 'none';
-            // Reset form when closing
-            enableFormFields(true);
-            document.querySelector('.btn-save').style.display = 'block';
-            orderForm.reset();
+            resetFormToEditable();
         }
 
+        function closeViewModal() {
+            viewModal.style.display = 'none';
+        }
+
+        // Reset form to editable state
+        function resetFormToEditable() {
+            enableFormFields(true);
+            document.querySelector('#orderForm .btn-save').style.display = 'block';
+            orderForm.reset();
+            document.getElementById('orderId').value = '';
+        }
+
+        // Enable/disable form fields
         function enableFormFields(editable) {
             const inputs = document.querySelectorAll('#orderForm input, #orderForm select, #orderForm textarea');
             inputs.forEach(input => {
@@ -534,50 +684,88 @@
             });
         }
 
-        newOrderBtn.onclick = openAddOrderModal;
-        closeModalBtn.onclick = closeOrderModal;
-
-        window.onclick = function(event) {
-            if (event.target === orderModal) closeOrderModal();
-        };
-
+        // View Order Details (shows FULL content)
         function viewOrder(id) {
             fetch(`/court-orders/${id}`)
                 .then(res => res.json())
                 .then(order => {
-                    // Fill form with data
-                    document.getElementById('orderId').value = order.id;
-                    document.getElementById('orderNumber').value = order.order_number;
-                    document.getElementById('caseTitle').value = order.case_title || '';
-                    document.getElementById('orderType').value = order.order_type;
-                    document.getElementById('issuedDate').value = order.issued_date ? order.issued_date.split('T')[0] : '';
-                    document.getElementById('receivedDate').value = order.received_date ? order.received_date.split('T')[0] : '';
-                    document.getElementById('judgeName').value = order.judge_name || '';
-                    document.getElementById('courtBranch').value = order.court_branch || '';
-                    document.getElementById('summary').value = order.summary || '';
-                    document.getElementById('keyProvisions').value = order.key_provisions || '';
-                    document.getElementById('status').value = order.status || 'Received';
-                    document.getElementById('complianceDate').value = order.compliance_date ? order.compliance_date.split('T')[0] : '';
-                    
-                    // Set to read-only mode
-                    enableFormFields(false);
-                    document.querySelector('.btn-save').style.display = 'none';
-                    
-                    modalTitle.innerHTML = `<i class="fas fa-eye"></i> View Court Order`;
-                    orderModal.style.display = 'flex';
+                    const detailHtml = `
+                        <div class="detail-section">
+                            <div class="detail-label">Order Number</div>
+                            <div class="detail-value"><strong>${escapeHtml(order.order_number)}</strong></div>
+                        </div>
+                        <div class="detail-section">
+                            <div class="detail-label">Case Title</div>
+                            <div class="detail-value">${escapeHtml(order.case_title || '—')}</div>
+                        </div>
+                        <div class="detail-section">
+                            <div class="detail-label">Order Type</div>
+                            <div class="detail-value"><span class="order-type-badge">${escapeHtml(order.order_type)}</span></div>
+                        </div>
+                        <div class="detail-section">
+                            <div class="detail-label">Issued Date</div>
+                            <div class="detail-value">${order.issued_date ? new Date(order.issued_date).toLocaleDateString() : '—'}</div>
+                        </div>
+                        <div class="detail-section">
+                            <div class="detail-label">Received Date</div>
+                            <div class="detail-value">${order.received_date ? new Date(order.received_date).toLocaleDateString() : '—'}</div>
+                        </div>
+                        <div class="detail-section">
+                            <div class="detail-label">Judge Name</div>
+                            <div class="detail-value">${escapeHtml(order.judge_name || '—')}</div>
+                        </div>
+                        <div class="detail-section">
+                            <div class="detail-label">Court Branch</div>
+                            <div class="detail-value">${escapeHtml(order.court_branch || '—')}</div>
+                        </div>
+                        <div class="detail-section">
+                            <div class="detail-label">Status</div>
+                            <div class="detail-value">
+                                <span class="status-badge status-${(order.status || 'received').toLowerCase().replace(/ /g, '-')}">
+                                    ${escapeHtml(order.status || 'Received')}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="detail-section">
+                            <div class="detail-label">Compliance Date</div>
+                            <div class="detail-value">${order.compliance_date ? new Date(order.compliance_date).toLocaleDateString() : '—'}</div>
+                        </div>
+                        <div class="detail-section">
+                            <div class="detail-label">Summary (Full Content)</div>
+                            <div class="detail-value full-text">${escapeHtml(order.summary) || '—'}</div>
+                        </div>
+                        <div class="detail-section">
+                            <div class="detail-label">Key Provisions</div>
+                            <div class="detail-value full-text">${escapeHtml(order.key_provisions) || '—'}</div>
+                        </div>
+                        ${order.file_path ? `
+                        <div class="detail-section">
+                            <div class="detail-label">Attached Document</div>
+                            <div class="detail-value">
+                                <a href="/court-orders/download/${order.id}" class="btn-primary" style="display: inline-block; padding: 8px 16px; text-decoration: none; font-size: 0.85rem;">
+                                    <i class="fas fa-download"></i> Download Document
+                                </a>
+                            </div>
+                        </div>
+                        ` : ''}
+                    `;
+                    document.getElementById('viewDetailsContent').innerHTML = detailHtml;
+                    viewModal.style.display = 'flex';
                 })
-                .catch(err => alert("Error loading order data"));
+                .catch(err => {
+                    console.error(err);
+                    alert("Error loading order details");
+                });
         }
 
+        // Edit Order
         function editOrder(id) {
             fetch(`/court-orders/${id}`)
                 .then(res => res.json())
                 .then(order => {
-                    // Enable editing
                     enableFormFields(true);
-                    document.querySelector('.btn-save').style.display = 'block';
+                    document.querySelector('#orderForm .btn-save').style.display = 'block';
                     
-                    // Fill form with data
                     document.getElementById('orderId').value = order.id;
                     document.getElementById('orderNumber').value = order.order_number;
                     document.getElementById('caseTitle').value = order.case_title || '';
@@ -595,20 +783,45 @@
                     orderForm.action = `/court-orders/update/${id}`;
                     orderModal.style.display = 'flex';
                 })
-                .catch(err => alert("Error loading order data"));
+                .catch(err => {
+                    console.error(err);
+                    alert("Error loading order data");
+                });
         }
 
+        // Download order document
         function downloadOrder(id) { 
             window.location.href = `/court-orders/download/${id}`; 
         }
 
+        // Delete order
         function deleteOrder(id) {
-            if (confirm('Delete this court order?')) {
+            if (confirm('Are you sure you want to delete this court order? This action cannot be undone.')) {
                 fetch(`/court-orders/delete/${id}`, { method: 'DELETE' })
-                    .then(() => location.reload());
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert('Error deleting order');
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert('Error deleting order');
+                    });
             }
         }
 
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            if (!text) return text;
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Filter orders
         function filterOrders() {
             const status = document.getElementById('statusFilter').value.toLowerCase();
             const type = document.getElementById('typeFilter').value;
@@ -616,26 +829,45 @@
             const rows = document.querySelectorAll('#ordersTable tbody tr');
 
             rows.forEach(row => {
+                if (row.cells.length === 1 && row.cells[0].colSpan) return;
+                
                 const rowText = row.innerText.toLowerCase();
                 const statusCell = row.cells[8]?.innerText.toLowerCase() || '';
                 const typeCell = row.cells[2]?.innerText || '';
 
                 const matchStatus = status === 'all' || statusCell.includes(status);
                 const matchType = type === 'all' || typeCell === type;
-                const matchSearch = rowText.includes(search);
+                const matchSearch = search === '' || rowText.includes(search);
 
                 row.style.display = (matchStatus && matchType && matchSearch) ? '' : 'none';
             });
         }
 
-        // Check if we need to open view modal on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const viewId = urlParams.get('view');
-            if (viewId) {
-                viewOrder(viewId);
-            }
+        // Debounced search
+        let searchTimeout;
+        document.getElementById('searchInput')?.addEventListener('keyup', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(filterOrders, 300);
         });
+
+        // Event Listeners
+        newOrderBtn.onclick = openAddOrderModal;
+        closeOrderModalBtn.onclick = closeOrderModal;
+        closeViewModalBtn.onclick = closeViewModal;
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            if (event.target === orderModal) closeOrderModal();
+            if (event.target === viewModal) closeViewModal();
+        }
+
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert-success, .alert-error');
+            alerts.forEach(alert => {
+                setTimeout(() => alert.remove(), 300);
+            });
+        }, 5000);
     </script>
 </body>
 </html>
