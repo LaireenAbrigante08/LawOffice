@@ -9,7 +9,6 @@ exports.login = (req, res) => {
     
     console.log('Login attempt for:', username);
     
-    // Query user from database using callback
     db.query(
         'SELECT * FROM users WHERE username = ? OR email = ?',
         [username, username],
@@ -19,14 +18,37 @@ exports.login = (req, res) => {
                 return res.render('login', { errorMessage: 'Database error. Please try again.' });
             }
             
-            console.log('Found users:', users.length);
-            
             if (users.length > 0) {
                 const user = users[0];
                 
-                // Direct string comparison for plain text passwords
                 if (password === user.password) {
-                    // Set session
+                    // Get IP address
+                    const ip = req.headers['x-forwarded-for'] || 
+                              req.connection.remoteAddress || 
+                              req.socket.remoteAddress || 
+                              req.ip;
+                    
+                    let cleanIp = ip;
+                    if (cleanIp && cleanIp.startsWith('::ffff:')) {
+                        cleanIp = cleanIp.substring(7);
+                    }
+                    if (cleanIp === '::1') {
+                        cleanIp = '127.0.0.1';
+                    }
+                    
+                    // Record LOGIN activity
+                    db.query(
+                        'INSERT INTO activity_logs (user_id, username, action, ip_address, timestamp) VALUES (?, ?, "Login", ?, NOW())',
+                        [user.id, user.username, cleanIp],
+                        (logErr) => {
+                            if (logErr) {
+                                console.error('Error logging login:', logErr);
+                            } else {
+                                console.log('✅ Login recorded for:', user.username, 'at', new Date().toLocaleString());
+                            }
+                        }
+                    );
+                    
                     req.session.userId = user.id;
                     req.session.username = user.username;
                     req.session.user = user.full_name || user.username;
@@ -36,13 +58,9 @@ exports.login = (req, res) => {
                     console.log('Login successful for:', user.username);
                     res.redirect('/dashboard');
                 } else {
-                    console.log('Password mismatch for user:', user.username);
-                    console.log('Entered:', password);
-                    console.log('Stored:', user.password);
                     res.render('login', { errorMessage: 'Invalid password' });
                 }
             } else {
-                console.log('User not found:', username);
                 res.render('login', { errorMessage: 'User not found' });
             }
         }
@@ -50,6 +68,41 @@ exports.login = (req, res) => {
 };
 
 exports.logout = (req, res) => {
-    req.session.destroy();
-    res.redirect('/login');
+    const userId = req.session.userId;
+    const username = req.session.username;
+    
+    console.log('Logout attempt for:', username);
+    
+    if (userId && username) {
+        const ip = req.headers['x-forwarded-for'] || 
+                  req.connection.remoteAddress || 
+                  req.socket.remoteAddress || 
+                  req.ip;
+        
+        let cleanIp = ip;
+        if (cleanIp && cleanIp.startsWith('::ffff:')) {
+            cleanIp = cleanIp.substring(7);
+        }
+        if (cleanIp === '::1') {
+            cleanIp = '127.0.0.1';
+        }
+        
+        // Record LOGOUT activity
+        db.query(
+            'INSERT INTO activity_logs (user_id, username, action, ip_address, timestamp) VALUES (?, ?, "Logout", ?, NOW())',
+            [userId, username, cleanIp],
+            (logErr) => {
+                if (logErr) {
+                    console.error('Error logging logout:', logErr);
+                } else {
+                    console.log('✅ Logout recorded for:', username, 'at', new Date().toLocaleString());
+                }
+            }
+        );
+    }
+    
+    req.session.destroy((err) => {
+        if (err) console.error('Session destroy error:', err);
+        res.redirect('/login');
+    });
 };
