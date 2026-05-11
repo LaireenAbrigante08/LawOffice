@@ -35,6 +35,25 @@
             <i class="fas fa-chart-line"></i>
             <span>Analytics</span>
         </a>
+        
+        <!-- SETTINGS DROPDOWN -->
+        <div class="dropdown">
+            <a href="#" class="dropdown-toggle" onclick="toggleDropdown(event)">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+                <i class="fas fa-chevron-down" style="margin-left: auto; font-size: 0.7rem;"></i>
+            </a>
+            <div class="dropdown-menu">
+                <a href="#" onclick="openActivityLogsModal(); return false;">
+                    <i class="fas fa-history"></i>
+                    <span>Activity Logs</span>
+                </a>
+                <a href="#" onclick="openChangePasswordModal(); return false;">
+                    <i class="fas fa-key"></i>
+                    <span>Change Password</span>
+                </a>
+            </div>
+        </div>
     </div>
     
     <div class="logout-link">
@@ -161,6 +180,72 @@
     </div>
 </div>
 
+<!-- ACTIVITY LOGS MODAL -->
+<div class="modal" id="activityLogsModal">
+    <div class="modal-content" style="width: 1000px; max-width: 95%;">
+        <div class="modal-header">
+            <h3><i class="fas fa-history" style="margin-right: 8px;"></i> Activity Logs</h3>
+            <span class="close" onclick="closeActivityLogsModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <h4 style="color: #7a2e3a; margin-bottom: 15px;">
+                <i class="fas fa-clock"></i> Login & Logout Activity History
+            </h4>
+            <div style="overflow-x: auto; max-height: 500px; overflow-y: auto; border: 1px solid #e5dbd2; border-radius: 12px;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead style="background: #60212e; color: white; position: sticky; top: 0;">
+                        <tr>
+                            <th style="padding: 12px; text-align: left;">User</th>
+                            <th style="padding: 12px; text-align: left;">Action</th>
+                            <th style="padding: 12px; text-align: left;">Date & Time</th>
+                            <th style="padding: 12px; text-align: left;">IP Address</th>
+                        </tr>
+                    </thead>
+                    <tbody id="activityLogsBody">
+                        <tr><td colspan="4" style="text-align: center; padding: 40px;">Loading activity logs...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="margin-top: 15px; text-align: right;">
+                <button onclick="refreshActivityLogs()" class="btn-save" style="width: auto; padding: 8px 20px; background: #60212e;">
+                    <i class="fas fa-sync-alt"></i> Refresh Logs
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CHANGE PASSWORD MODAL -->
+<div class="modal" id="changePasswordModal">
+    <div class="modal-content" style="width: 500px; max-width: 95%;">
+        <div class="modal-header">
+            <h3><i class="fas fa-key" style="margin-right: 8px;"></i> Change Password</h3>
+            <span class="close" onclick="closeChangePasswordModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="changePasswordForm" onsubmit="changePassword(event)">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #5e3340;">Current Password</label>
+                    <input type="password" id="currentPassword" required style="width: 100%; padding: 12px; border: 1.5px solid #e5dbd2; border-radius: 12px;">
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #5e3340;">New Password</label>
+                    <input type="password" id="newPassword" required minlength="6" style="width: 100%; padding: 12px; border: 1.5px solid #e5dbd2; border-radius: 12px;">
+                    <small style="color: #8a6c6c;">Minimum 6 characters</small>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #5e3340;">Confirm New Password</label>
+                    <input type="password" id="confirmNewPassword" required style="width: 100%; padding: 12px; border: 1.5px solid #e5dbd2; border-radius: 12px;">
+                </div>
+                <button type="submit" class="btn-save">
+                    <i class="fas fa-save"></i> Change Password
+                </button>
+                <div id="passwordChangeMessage" style="margin-top: 15px; font-size: 0.85rem;"></div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <style>
 /* ========= SIDEBAR MAROON THEME STYLES ========= */
 .sidebar {
@@ -263,6 +348,68 @@
 
 .sidebar a.active i {
     color: #3f0f1a;
+}
+
+/* Dropdown Styles */
+.dropdown {
+    position: relative;
+}
+
+.dropdown-toggle {
+    cursor: pointer;
+    justify-content: space-between;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 100%;
+    background: white;
+    min-width: 220px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    z-index: 100;
+    margin-top: 5px;
+    overflow: hidden;
+}
+
+.dropdown-menu.show {
+    display: block;
+    animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-menu a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    color: #4a1520;
+    text-decoration: none;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+}
+
+.dropdown-menu a:hover {
+    background: #f5ebe5;
+    border-left-color: #c9865e;
+    transform: none;
+}
+
+.dropdown-menu a i {
+    width: 20px;
+    color: #c9865e;
 }
 
 .logout-link {
@@ -440,10 +587,154 @@
         width: 48px;
         height: 48px;
     }
+    .dropdown-menu {
+        left: auto;
+        right: 0;
+    }
 }
 </style>
 
 <script>
+// Dropdown Functions
+function toggleDropdown(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const dropdownMenu = document.querySelector('.dropdown-menu');
+    dropdownMenu.classList.toggle('show');
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    const dropdown = document.querySelector('.dropdown');
+    const dropdownMenu = document.querySelector('.dropdown-menu');
+    if (dropdown && !dropdown.contains(event.target)) {
+        if (dropdownMenu) dropdownMenu.classList.remove('show');
+    }
+});
+
+// Activity Logs Modal Functions
+function openActivityLogsModal() {
+    const modal = document.getElementById("activityLogsModal");
+    if(modal) {
+        modal.style.display = "flex";
+        document.body.style.overflow = "hidden";
+        refreshActivityLogs();
+    }
+    // Close dropdown
+    document.querySelector('.dropdown-menu').classList.remove('show');
+}
+
+function closeActivityLogsModal() {
+    const modal = document.getElementById("activityLogsModal");
+    if(modal) {
+        modal.style.display = "none";
+        document.body.style.overflow = "auto";
+    }
+}
+
+// Change Password Modal Functions
+function openChangePasswordModal() {
+    const modal = document.getElementById("changePasswordModal");
+    if(modal) {
+        modal.style.display = "flex";
+        document.body.style.overflow = "hidden";
+        // Reset form
+        document.getElementById('changePasswordForm').reset();
+        document.getElementById('passwordChangeMessage').innerHTML = '';
+    }
+    // Close dropdown
+    document.querySelector('.dropdown-menu').classList.remove('show');
+}
+
+function closeChangePasswordModal() {
+    const modal = document.getElementById("changePasswordModal");
+    if(modal) {
+        modal.style.display = "none";
+        document.body.style.overflow = "auto";
+    }
+}
+
+// Fetch and display activity logs
+function refreshActivityLogs() {
+    fetch('/api/activity-logs')
+        .then(res => res.json())
+        .then(data => {
+            const tbody = document.getElementById('activityLogsBody');
+            if(data.logs && data.logs.length > 0) {
+                tbody.innerHTML = data.logs.map(log => `
+                    <tr style="border-bottom: 1px solid #e5dbd2;">
+                        <td style="padding: 12px;">${escapeHtml(log.username || log.user || 'Unknown')}</td>
+                        <td style="padding: 12px;">
+                            <span style="background: ${log.action === 'Login' ? '#e3f5ec' : log.action === 'Logout' ? '#ffe6e5' : '#fff3e0'}; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem;">
+                                ${log.action}
+                            </span>
+                        </td>
+                        <td style="padding: 12px;">${new Date(log.timestamp).toLocaleString()}</td>
+                        <td style="padding: 12px;">${log.ip_address || '—'}</td>
+                    </tr>
+                `).join('');
+            } else {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 40px;">No activity logs found</td></tr>';
+            }
+        })
+        .catch(err => {
+            console.error('Error loading logs:', err);
+            document.getElementById('activityLogsBody').innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 40px; color: red;">Failed to load logs</td></tr>';
+        });
+}
+
+// Change Password Function
+function changePassword(event) {
+    event.preventDefault();
+    
+    const currentPassword = document.getElementById('currentPassword').value;
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+    const messageDiv = document.getElementById('passwordChangeMessage');
+    
+    if(newPassword.length < 6) {
+        messageDiv.innerHTML = '<span style="color: #bc5a4a;"><i class="fas fa-exclamation-circle"></i> New password must be at least 6 characters</span>';
+        return;
+    }
+    
+    if(newPassword !== confirmNewPassword) {
+        messageDiv.innerHTML = '<span style="color: #bc5a4a;"><i class="fas fa-exclamation-circle"></i> New passwords do not match</span>';
+        return;
+    }
+    
+    fetch('/api/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            current_password: currentPassword,
+            new_password: newPassword
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success) {
+            messageDiv.innerHTML = '<span style="color: #1e6f4c;"><i class="fas fa-check-circle"></i> Password changed successfully!</span>';
+            document.getElementById('changePasswordForm').reset();
+            setTimeout(() => {
+                messageDiv.innerHTML = '';
+                closeChangePasswordModal();
+            }, 2000);
+        } else {
+            messageDiv.innerHTML = '<span style="color: #bc5a4a;"><i class="fas fa-exclamation-circle"></i> ' + (data.error || 'Failed to change password') + '</span>';
+        }
+    })
+    .catch(err => {
+        messageDiv.innerHTML = '<span style="color: #bc5a4a;"><i class="fas fa-exclamation-circle"></i> Server error. Please try again.</span>';
+    });
+}
+
+function escapeHtml(text) {
+    if(!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 function openModal() {
     const modal = document.getElementById("userModal");
     if(modal) {
@@ -460,23 +751,26 @@ function closeModal() {
     }
 }
 
+// Close modals when clicking outside
 window.onclick = function(event) {
-    const modal = document.getElementById("userModal");
-    if (event.target === modal) {
-        closeModal();
-    }
+    const userModal = document.getElementById("userModal");
+    const activityModal = document.getElementById("activityLogsModal");
+    const passwordModal = document.getElementById("changePasswordModal");
+    
+    if (event.target === userModal) closeModal();
+    if (event.target === activityModal) closeActivityLogsModal();
+    if (event.target === passwordModal) closeChangePasswordModal();
 }
 
 document.addEventListener('keydown', function(e) {
     if (e.key === "Escape") {
-        const modal = document.getElementById("userModal");
-        if (modal && modal.style.display === "flex") {
-            closeModal();
-        }
+        closeModal();
+        closeActivityLogsModal();
+        closeChangePasswordModal();
     }
 });
 
-// Form Validation
+// Form Validation for Add User
 const addForm = document.getElementById('addUserForm');
 if(addForm) {
     addForm.addEventListener('submit', function(e) {
@@ -504,6 +798,11 @@ if(addForm) {
             showModalAlert('Please enter an email address.', email);
             return false;
         }
+        if(email.value && !email.value.includes('@')) {
+            e.preventDefault();
+            showModalAlert('Please enter a valid email address.', email);
+            return false;
+        }
         if(password.value.trim().length < 6) {
             e.preventDefault();
             showModalAlert('Password must be at least 6 characters.', password);
@@ -521,6 +820,7 @@ if(addForm) {
         if(existing) existing.remove();
         const alertDiv = document.createElement('div');
         alertDiv.className = 'modal-alert-fly';
+        alertDiv.style.cssText = 'background: #fff1f0; color: #bc5a4a; padding: 10px 15px; border-radius: 12px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; font-size: 0.85rem;';
         alertDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${msg}`;
         const modalBody = document.querySelector('#userModal .modal-body');
         modalBody.insertBefore(alertDiv, modalBody.firstChild);
