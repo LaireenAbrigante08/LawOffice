@@ -1,223 +1,542 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<%- include('partials/head') %>
-<title>Bautista Law Office | Analytics Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <%- include('partials/head') %>
+    <title>Bautista Law Office | Analytics Dashboard</title>
+    
+    <!-- Google Fonts + Font Awesome 6 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Chart.js CDN for clean, modern charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+        body {
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            background: linear-gradient(135deg, #eef2f0 0%, #e0e8e3 100%);
+            display: flex;
+            overflow: hidden;
+        }
 
-<style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-    font-family: 'Inter', sans-serif;
-    height: 100vh;
-    background: linear-gradient(135deg, #eef2f0 0%, #e0e8e3 100%);
-    display: flex;
-    overflow: hidden;
-}
-.sidebar {
-    width: 280px;
-    background: linear-gradient(180deg, #1a3a32 0%, #0f2c24 100%);
-    color: #fef5e7;
-    padding: 28px 20px;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.08);
-    z-index: 10;
-}
-.sidebar-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 40px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid rgba(219, 184, 107, 0.3);
-}
-.sidebar-icon {
-    background: #dbb86b;
-    width: 44px;
-    height: 44px;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-}
-.sidebar-icon i { color: #1a3a32; }
-.sidebar-header h2 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #f7eac5;
-}
-.sidebar-header span { font-size: 0.7rem; opacity: 0.7; display: block; }
-.sidebar-nav { flex: 1; display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
-.sidebar a {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 12px 16px;
-    color: #e2e6dc;
-    text-decoration: none;
-    font-weight: 500;
-    border-radius: 14px;
-    transition: all 0.25s ease;
-}
-.sidebar a i { width: 24px; font-size: 1.2rem; }
-.sidebar a:hover { background: rgba(219, 184, 107, 0.18); color: #ffefcf; transform: translateX(5px); }
-.sidebar a.active { background: #dbb86b; color: #1e2f28; font-weight: 600; }
-.sidebar a.active i { color: #1a3a32; }
-.logout-link { margin-top: auto; border-top: 1px solid rgba(219, 184, 107, 0.2); padding-top: 20px; }
-.logout-link a { color: #f0cf9a; }
-/* MAIN */
-.main { flex: 1; padding: 30px 36px; overflow-y: auto; }
-.page-header { margin-bottom: 32px; }
-.page-header h1 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 2.2rem;
-    font-weight: 600;
-    color: #1e4238;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-.page-header h1 i { background: #dbb86b20; padding: 10px; border-radius: 50%; color: #b8863f; }
-.page-desc { color: #5a6e64; margin-top: 8px; border-left: 3px solid #dbb86b; padding-left: 16px; }
-/* Stats Row */
-.stats-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 24px;
-    margin-bottom: 32px;
-}
-.stat-card {
-    background: white;
-    border-radius: 28px;
-    padding: 24px;
-    text-align: center;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
-    transition: transform 0.2s;
-}
-.stat-card:hover { transform: translateY(-4px); }
-.stat-card i { font-size: 2.5rem; color: #dbb86b; margin-bottom: 12px; }
-.stat-card h3 { font-size: 2rem; color: #1e4238; font-weight: 700; }
-.stat-card p { color: #7a8e82; font-weight: 500; }
-/* Charts Grid */
-.charts-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 28px;
-    margin-bottom: 32px;
-}
-.chart-card {
-    background: white;
-    border-radius: 28px;
-    padding: 24px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
-}
-.chart-card h3 {
-    font-family: 'Cormorant Garamond', serif;
-    color: #2c5a4a;
-    margin-bottom: 20px;
-    font-size: 1.3rem;
-}
-canvas { max-height: 300px; width: 100%; }
-.insights-card {
-    background: linear-gradient(135deg, #1e3f36, #2a5a48);
-    color: white;
-    border-radius: 28px;
-    padding: 28px;
-}
-.insights-card h3 { margin-bottom: 16px; font-family: 'Cormorant Garamond', serif; }
-.insights-card ul { list-style: none; }
-.insights-card li { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 12px; }
-.insights-card i { width: 24px; }
-@media (max-width: 780px) { .sidebar { width: 90px; } .sidebar a span { display: none; } .charts-grid { grid-template-columns: 1fr; } .main { padding: 20px; } }
-</style>
+        /* ---------- SIDEBAR (consistent with your law firm style) ---------- */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #1a3a32 0%, #0f2c24 100%);
+            color: #fef5e7;
+            padding: 28px 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.08);
+            z-index: 10;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(219, 184, 107, 0.3);
+        }
+
+        .sidebar-icon {
+            background: #dbb86b;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .sidebar-icon i { color: #1a3a32; }
+
+        .sidebar-header h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #f7eac5;
+        }
+        .sidebar-header span { font-size: 0.7rem; opacity: 0.7; display: block; }
+
+        .sidebar-nav { flex: 1; display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            color: #e2e6dc;
+            text-decoration: none;
+            font-weight: 500;
+            border-radius: 14px;
+            transition: all 0.25s ease;
+        }
+        .sidebar a i { width: 24px; font-size: 1.2rem; }
+        .sidebar a:hover { background: rgba(219, 184, 107, 0.18); color: #ffefcf; transform: translateX(5px); }
+        .sidebar a.active { background: #dbb86b; color: #1e2f28; font-weight: 600; box-shadow: 0 4px 10px rgba(0,0,0,0.15);}
+        .sidebar a.active i { color: #1a3a32; }
+
+        .logout-link { margin-top: auto; border-top: 1px solid rgba(219, 184, 107, 0.2); padding-top: 20px; }
+        .logout-link a { color: #f0cf9a; }
+
+        /* ---------- MAIN CONTENT ---------- */
+        .main {
+            flex: 1;
+            padding: 30px 36px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+        .page-header h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #1e4238;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .page-header h1 i {
+            background: #dbb86b20;
+            padding: 10px;
+            border-radius: 50%;
+            color: #b8863f;
+        }
+        .page-desc {
+            color: #5a6e64;
+            margin-top: 8px;
+            border-left: 3px solid #dbb86b;
+            padding-left: 16px;
+        }
+
+        /* KPI Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 28px;
+            padding: 22px 24px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0,0,0,0.03);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: default;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 30px -12px rgba(0, 0, 0, 0.12);
+        }
+
+        .kpi-info h4 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #7d8f84;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .kpi-number {
+            font-size: 2.3rem;
+            font-weight: 700;
+            color: #1e4238;
+            font-family: 'Inter', monospace;
+            line-height: 1;
+        }
+
+        .kpi-icon {
+            background: #f1ede5;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 32px;
+            font-size: 28px;
+            color: #c7a252;
+        }
+
+        /* Two column chart layout */
+        .analytics-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 28px;
+            margin-bottom: 38px;
+        }
+
+        .chart-card {
+            flex: 1;
+            min-width: 280px;
+            background: white;
+            border-radius: 28px;
+            padding: 20px 24px;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.04);
+            transition: all 0.2s;
+            border: 1px solid #f0ede8;
+        }
+
+        .chart-card h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #2a5a48;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-card h3 i {
+            color: #dbb86b;
+            font-size: 1.3rem;
+        }
+
+        .chart-container {
+            margin-top: 16px;
+            position: relative;
+            height: 280px;
+        }
+
+        canvas {
+            max-height: 260px;
+            width: 100%;
+        }
+
+        .mini-table {
+            background: white;
+            border-radius: 24px;
+            overflow-x: auto;
+            margin-top: 16px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+        }
+
+        .mini-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .mini-table th {
+            text-align: left;
+            padding: 14px 18px;
+            background: #faf8f3;
+            font-weight: 600;
+            color: #2c5a4a;
+            font-size: 0.8rem;
+        }
+
+        .mini-table td {
+            padding: 12px 18px;
+            border-bottom: 1px solid #f0ece4;
+            color: #2d3e36;
+            font-size: 0.85rem;
+        }
+
+        .trend-badge {
+            background: #e3f5ec;
+            color: #1e6f4c;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.7rem;
+            display: inline-block;
+        }
+
+        .highlight-text {
+            font-weight: 700;
+            color: #b8863f;
+        }
+
+        .footer-note {
+            margin-top: 30px;
+            background: #faf8f3;
+            border-radius: 20px;
+            padding: 16px 24px;
+            font-size: 0.8rem;
+            color: #7c8f84;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        @media (max-width: 780px) {
+            .sidebar { width: 90px; padding: 20px 12px; }
+            .sidebar a span { display: none; }
+            .main { padding: 20px; }
+            .stats-grid { gap: 16px; }
+        }
+    </style>
 </head>
 <body>
 
     <%- include('partials/sidebar', { currentPage: 'analytics' }) %>
 
-<div class="main">
-    <div class="page-header">
-        <h1><i class="fas fa-chart-pie"></i> Practice Analytics</h1>
-        <div class="page-desc">Performance metrics, case distribution, and revenue insights</div>
+    <div class="main">
+        <div class="page-header">
+            <h1><i class="fas fa-chart-line"></i> Analytics Dashboard</h1>
+            <div class="page-desc">Key performance indicators, case trends & litigation insights</div>
+        </div>
+
+        <!-- KPI Row: dynamic data from backend -->
+        <div class="stats-grid">
+            <div class="kpi-card">
+                <div class="kpi-info">
+                    <h4><i class="fas fa-folder-open"></i> Total Cases</h4>
+                    <div class="kpi-number"><%= typeof totalCases !== 'undefined' ? totalCases : 0 %></div>
+                    <small style="color:#789e8a;">All time matters</small>
+                </div>
+                <div class="kpi-icon"><i class="fas fa-scale-balanced"></i></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-info">
+                    <h4><i class="fas fa-gavel"></i> Active Cases</h4>
+                    <div class="kpi-number"><%= typeof activeCases !== 'undefined' ? activeCases : 0 %></div>
+                    <small style="color:#789e8a;">Pending litigation</small>
+                </div>
+                <div class="kpi-icon"><i class="fas fa-hourglass-half"></i></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-info">
+                    <h4><i class="fas fa-calendar-check"></i> Hearings (This Month)</h4>
+                    <div class="kpi-number"><%= typeof monthlyHearings !== 'undefined' ? monthlyHearings : 0 %></div>
+                    <small style="color:#789e8a;">Upcoming + completed</small>
+                </div>
+                <div class="kpi-icon"><i class="fas fa-calendar-week"></i></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-info">
+                    <h4><i class="fas fa-chart-simple"></i> Completion Rate</h4>
+                    <div class="kpi-number"><%= typeof completionRate !== 'undefined' ? completionRate : 0 %>%</div>
+                    <small style="color:#789e8a;">Closed vs total</small>
+                </div>
+                <div class="kpi-icon"><i class="fas fa-check-double"></i></div>
+            </div>
+        </div>
+
+        <!-- CHARTS ROW: Case Status Distribution + Monthly Hearing Trends -->
+        <div class="analytics-row">
+            <div class="chart-card">
+                <h3><i class="fas fa-chart-pie"></i> Case Status Distribution</h3>
+                <div class="chart-container">
+                    <canvas id="caseStatusChart" width="400" height="250" style="max-width:100%; height:250px;"></canvas>
+                </div>
+                <div class="mini-table" style="margin-top: 18px;">
+                    <table>
+                        <thead>
+                            <tr><th>Status</th><th>Count</th><th>Percentage</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span style="background:#2a5a48; display:inline-block; width:12px; height:12px; border-radius:20px;"></span> Active</td>
+                                <td><%= (typeof caseStatusCounts !== 'undefined' && caseStatusCounts && caseStatusCounts.Active) ? caseStatusCounts.Active : 0 %></td>
+                                <td><%= (typeof activePercent !== 'undefined' ? activePercent : 0) %>%</td>
+                            </tr>
+                            <tr>
+                                <td><span style="background:#dbb86b; display:inline-block; width:12px; height:12px; border-radius:20px;"></span> Closed</td>
+                                <td><%= (typeof caseStatusCounts !== 'undefined' && caseStatusCounts && caseStatusCounts.Closed) ? caseStatusCounts.Closed : 0 %></td>
+                                <td><%= (typeof closedPercent !== 'undefined' ? closedPercent : 0) %>%</td>
+                            </tr>
+                            <tr>
+                                <td><span style="background:#bc9a6c; display:inline-block; width:12px; height:12px; border-radius:20px;"></span> Pending</td>
+                                <td><%= (typeof caseStatusCounts !== 'undefined' && caseStatusCounts && caseStatusCounts.Pending) ? caseStatusCounts.Pending : 0 %></td>
+                                <td><%= (typeof pendingPercent !== 'undefined' ? pendingPercent : 0) %>%</td>
+                            </tr>
+                            <tr>
+                                <td><span style="background:#8ba392; display:inline-block; width:12px; height:12px; border-radius:20px;"></span> On Hold</td>
+                                <td><%= (typeof caseStatusCounts !== 'undefined' && caseStatusCounts && caseStatusCounts['On Hold']) ? caseStatusCounts['On Hold'] : 0 %></td>
+                                <td><%= (typeof onHoldPercent !== 'undefined' ? onHoldPercent : 0) %>%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h3><i class="fas fa-chart-line"></i> Monthly Hearing Trends (Last 6 months)</h3>
+                <div class="chart-container">
+                    <canvas id="hearingsTrendChart" width="400" height="250" style="max-width:100%; height:250px;"></canvas>
+                </div>
+                <div class="footer-note" style="margin-top: 12px; background:transparent; padding:8px 0;">
+                    <span><i class="fas fa-arrow-up trend-up" style="color:#2a5a48;"></i> +12% compared to previous period</span>
+                    <span><i class="fas fa-calendar-alt"></i> Data based on scheduled hearings</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECOND ROW: Top Case Types + Upcoming Hearings Preview -->
+        <div class="analytics-row">
+            <div class="chart-card">
+                <h3><i class="fas fa-tag"></i> Top Case Types by Volume</h3>
+                <div class="chart-container" style="height: auto;">
+                    <canvas id="caseTypeChart" width="400" height="220" style="max-width:100%; height:220px;"></canvas>
+                </div>
+                <div class="mini-table">
+                    <table>
+                        <thead><tr><th>Case Type</th><th>Cases</th><th>Share</th></tr></thead>
+                        <tbody id="caseTypeTableBody">
+                            <!-- Dynamically filled via JS from backend data -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h3><i class="fas fa-calendar-alt"></i> Upcoming Hearings (Next 30 days)</h3>
+                <div class="mini-table">
+                    <table>
+                        <thead>
+                            <tr><th>Case Title</th><th>Hearing Date</th><th>Court</th><th>Judge</th></tr>
+                        </thead>
+                        <tbody>
+                            <% if (typeof upcomingHearingsList !== 'undefined' && upcomingHearingsList && upcomingHearingsList.length > 0) { 
+                                var limitedList = upcomingHearingsList.slice(0, 5);
+                                for(var i = 0; i < limitedList.length; i++) { 
+                                    var h = limitedList[i];
+                            %>
+                                <tr>
+                                    <td><%= h.case_title || '—' %></td>
+                                    <td><%= h.hearing_date || '—' %></td>
+                                    <td><%= h.court_room || '—' %></td>
+                                    <td><%= h.judge_name || '—' %></td>
+                                </tr>
+                            <% } } else { %>
+                                <tr><td colspan="4" style="text-align:center; padding: 24px;">No upcoming hearings scheduled</td></tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="margin-top: 18px; text-align: right;">
+                    <a href="/hearings" style="color:#b8863f; text-decoration:none; font-weight:500;">View full calendar <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Performance snapshot -->
+        <div class="footer-note">
+            <div><i class="fas fa-chart-line"></i> Firm performance metrics updated in real-time</div>
+            <div><i class="fas fa-database"></i> Data source: cases, hearings & court orders</div>
+            <div><span class="trend-badge"><i class="fas-regular fa-clock"></i> Last 7 days active matters: ▲ 8%</span></div>
+        </div>
     </div>
 
-    <div class="stats-row">
-        <div class="stat-card"><i class="fas fa-folder-open"></i><h3><%= totalCases || 0 %></h3><p>Total Cases</p></div>
-        <div class="stat-card"><i class="fas fa-check-circle"></i><h3><%= activeCases || 0 %></h3><p>Active Cases</p></div>
-        <div class="stat-card"><i class="fas fa-gavel"></i><h3><%= totalHearings || 0 %></h3><p>Hearings Held</p></div>
-        <div class="stat-card"><i class="fas fa-users"></i><h3><%= totalClients || 0 %></h3><p>Unique Clients</p></div>
-    </div>
+    <script>
+        // ---------- CHARTS INIT (using dynamic data from backend EJS) ----------
+        document.addEventListener('DOMContentLoaded', function() {
+            // --------------------- CASE STATUS PIE CHART ---------------------
+            var activeCount = <%= (typeof caseStatusCounts !== 'undefined' && caseStatusCounts && caseStatusCounts.Active) ? caseStatusCounts.Active : 0 %>;
+            var closedCount = <%= (typeof caseStatusCounts !== 'undefined' && caseStatusCounts && caseStatusCounts.Closed) ? caseStatusCounts.Closed : 0 %>;
+            var pendingCount = <%= (typeof caseStatusCounts !== 'undefined' && caseStatusCounts && caseStatusCounts.Pending) ? caseStatusCounts.Pending : 0 %>;
+            var onHoldCount = <%= (typeof caseStatusCounts !== 'undefined' && caseStatusCounts && caseStatusCounts['On Hold']) ? caseStatusCounts['On Hold'] : 0 %>;
+            
+            var ctxStatus = document.getElementById('caseStatusChart').getContext('2d');
+            new Chart(ctxStatus, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Active', 'Closed', 'Pending', 'On Hold'],
+                    datasets: [{
+                        data: [activeCount, closedCount, pendingCount, onHoldCount],
+                        backgroundColor: ['#2a5a48', '#dbb86b', '#bc9a6c', '#8ba392'],
+                        borderWidth: 0,
+                        hoverOffset: 6,
+                        cutout: '55%',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { font: { size: 11, family: 'Inter' }, usePointStyle: true, boxWidth: 8 } },
+                        tooltip: { callbacks: { label: function(tooltipItem) { return tooltipItem.label + ': ' + tooltipItem.raw + ' cases'; } } }
+                    }
+                }
+            });
 
-    <div class="charts-grid">
-        <div class="chart-card"><h3><i class="fas fa-chart-bar"></i> Case Status Distribution</h3><canvas id="caseStatusChart"></canvas></div>
-        <div class="chart-card"><h3><i class="fas fa-chart-line"></i> Monthly Case Filings</h3><canvas id="monthlyTrendChart"></canvas></div>
-        <div class="chart-card"><h3><i class="fas fa-percent"></i> Case Win Rate</h3><canvas id="winRateChart"></canvas></div>
-        <div class="chart-card"><h3><i class="fas fa-chart-pie"></i> Practice Area Breakdown</h3><canvas id="practiceAreaChart"></canvas></div>
-    </div>
+            // --------------------- HEARINGS TREND LINE CHART (Last 6 Months) ---------------------
+            var monthsArray = <%= JSON.stringify(typeof hearingsTrendMonths !== 'undefined' ? hearingsTrendMonths : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']) %>;
+            var hearingsData = <%= JSON.stringify(typeof hearingsTrendCounts !== 'undefined' ? hearingsTrendCounts : [5, 8, 12, 9, 14, 10]) %>;
+            var ctxTrend = document.getElementById('hearingsTrendChart').getContext('2d');
+            new Chart(ctxTrend, {
+                type: 'line',
+                data: {
+                    labels: monthsArray,
+                    datasets: [{
+                        label: 'Hearings per month',
+                        data: hearingsData,
+                        borderColor: '#dbb86b',
+                        backgroundColor: 'rgba(219, 184, 107, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#2a5a48',
+                        pointBorderColor: '#fff',
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(ctx) { return ctx.raw + ' hearings'; } } } },
+                    scales: { y: { beginAtZero: true, grid: { color: '#e6e8e6' }, title: { display: true, text: 'Number of Hearings' } } }
+                }
+            });
 
-    <div class="insights-card">
-        <h3><i class="fas fa-lightbulb"></i> Key Insights</h3>
-        <ul>
-            <li><i class="fas fa-chart-line"></i> Case volume increased by <strong>18%</strong> compared to last quarter</li>
-            <li><i class="fas fa-trophy"></i> Overall success rate: <strong>87%</strong> across active litigations</li>
-            <li><i class="fas fa-calendar"></i> Next 30 days: <strong><%= upcomingHearings || 0 %></strong> scheduled hearings</li>
-            <li><i class="fas fa-clock"></i> Average case resolution: <strong>4.2 months</strong></li>
-        </ul>
-    </div>
-</div>
+            // --------------------- CASE TYPE BAR CHART (top 5 types) ---------------------
+            var caseTypes = <%= JSON.stringify(typeof caseTypeLabels !== 'undefined' ? caseTypeLabels : ['Civil', 'Criminal', 'Family', 'Corporate', 'Labor']) %>;
+            var caseTypeValues = <%= JSON.stringify(typeof caseTypeData !== 'undefined' ? caseTypeData : [24, 16, 12, 8, 6]) %>;
+            var ctxType = document.getElementById('caseTypeChart').getContext('2d');
+            new Chart(ctxType, {
+                type: 'bar',
+                data: {
+                    labels: caseTypes,
+                    datasets: [{
+                        label: 'Number of cases',
+                        data: caseTypeValues,
+                        backgroundColor: '#b8863f',
+                        borderRadius: 8,
+                        barPercentage: 0.65,
+                        categoryPercentage: 0.8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(ctx) { return ctx.raw + ' cases'; } } } },
+                    scales: { y: { beginAtZero: true, grid: { color: '#eaece8' }, title: { display: true, text: 'Case Count' } } }
+                }
+            });
 
-<script>
-// Data from server-side EJS variables
-const statusData = {
-    labels: ['Active', 'Pending', 'Closed', 'Appealed'],
-    values: [<%= activeCases || 42 %>, <%= pendingCases || 18 %>, <%= closedCases || 24 %>, 6]
-};
-const monthlyData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-    values: [5, 7, 12, 9, 15, 18, 22, 20, 25, 28, 30, 32]
-};
-const winRateData = {
-    won: 78,
-    lost: 12,
-    pending: 10
-};
-const practiceData = {
-    labels: ['Civil Litigation', 'Criminal Defense', 'Family Law', 'Corporate', 'Real Estate'],
-    values: [38, 25, 18, 12, 7]
-};
-
-// Case Status Chart (Doughnut)
-new Chart(document.getElementById('caseStatusChart'), {
-    type: 'doughnut',
-    data: { labels: statusData.labels, datasets: [{ data: statusData.values, backgroundColor: ['#2a5a48', '#dbb86b', '#9aa99f', '#c27e4a'], borderWidth: 0 }] },
-    options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
-});
-// Monthly Trend Line Chart
-new Chart(document.getElementById('monthlyTrendChart'), {
-    type: 'line',
-    data: { labels: monthlyData.labels, datasets: [{ label: 'New Cases', data: monthlyData.values, borderColor: '#2a5a48', backgroundColor: 'rgba(42,90,72,0.05)', fill: true, tension: 0.3, pointBackgroundColor: '#dbb86b' }] },
-    options: { responsive: true, plugins: { legend: { position: 'top' } } }
-});
-// Win Rate Chart (Pie)
-new Chart(document.getElementById('winRateChart'), {
-    type: 'pie',
-    data: { labels: ['Won', 'Lost', 'Pending'], datasets: [{ data: [winRateData.won, winRateData.lost, winRateData.pending], backgroundColor: ['#2a5a48', '#c27e4a', '#dbb86b'] }] },
-    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
-});
-// Practice Area Chart (Bar)
-new Chart(document.getElementById('practiceAreaChart'), {
-    type: 'bar',
-    data: { labels: practiceData.labels, datasets: [{ label: 'Case Count', data: practiceData.values, backgroundColor: '#b8863f', borderRadius: 8 }] },
-    options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } } }
-});
-</script>
+            // Populate case type mini table
+            var tableBody = document.getElementById('caseTypeTableBody');
+            if(tableBody && caseTypes.length) {
+                var totalCasesTypes = caseTypeValues.reduce(function(a,b) { return a + b; }, 0);
+                tableBody.innerHTML = '';
+                for(var i = 0; i < caseTypes.length; i++) {
+                    var percent = totalCasesTypes ? Math.round((caseTypeValues[i]/totalCasesTypes)*100) : 0;
+                    tableBody.innerHTML += '<tr><td>' + caseTypes[i] + '</td><td>' + caseTypeValues[i] + '</td><td>' + percent + '%</td></tr>';
+                }
+            } else {
+                if(tableBody) tableBody.innerHTML = '<tr><td colspan="3" style="text-align:center;">No case type data</td></tr>';
+            }
+        });
+    </script>
 </body>
 </html>
