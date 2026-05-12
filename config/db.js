@@ -1,11 +1,11 @@
 const mysql = require('mysql2');
 
 const db = mysql.createConnection({
-    host: 'tramway.proxy.rlwy.net',  // Public host, hindi internal
+    host: 'mysql.railway.internal',  // internal - walang egress cost
     user: 'root',
-    password: 'PnmvRFPDfGynuWpLBYExeTiQwGwNmWiX',  // Tamang password
+    password: 'PmWkFPDtGynuWpLBYExeTIQwGwNmWiX',  // bagong password
     database: 'railway',
-    port: 38719  // Tamang port
+    port: 3306
 });
 
 db.connect(err => {
