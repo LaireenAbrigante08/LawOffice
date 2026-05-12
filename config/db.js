@@ -1,9 +1,9 @@
 const mysql = require('mysql2');
 
 const db = mysql.createConnection({
-    host: 'mysql.railway.internal',  // internal - walang egress cost
+    host: 'mysql.railway.internal',
     user: 'root',
-    password: 'PmWkFPDtGynuWpLBYExeTIQwGwNmWiX',  // bagong password
+    password: 'PnmvRFPDfGynuWpLBYExeTiQwGwNmwiX',  // <<--- ITO ANG TAMANG PASSWORD
     database: 'railway',
     port: 3306
 });
