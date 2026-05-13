@@ -38,11 +38,15 @@ const upload = multer({
 
 // Get all court orders
 router.get('/', isAuthenticated, (req, res) => {
-    db.query('SELECT * FROM court_orders ORDER BY issued_date DESC', (err, orders) => {
+    db.query('SELECT id, case_title, order_type, issued_date, received_date, judge_name, court_branch, summary, key_provisions, status, compliance_date, file_path, created_by, created_at FROM court_orders ORDER BY issued_date DESC', (err, orders) => {
         if (err) {
             console.error(err);
-            req.flash('error', 'Error loading court orders');
-            return res.render('court-orders', { orders: [], user: req.session.username || 'Attorney', success: null, error: 'Error loading court orders' });
+            return res.render('court-orders', { 
+                orders: [], 
+                user: req.session.username || 'Attorney', 
+                success: null, 
+                error: 'Error loading court orders' 
+            });
         }
 
         res.render('court-orders', {
@@ -55,7 +59,7 @@ router.get('/', isAuthenticated, (req, res) => {
     });
 });
 
-// Get single court order (for editing)
+// Get single court order (for viewing/editing)
 router.get('/:id', isAuthenticated, (req, res) => {
     db.query('SELECT * FROM court_orders WHERE id = ?', [req.params.id], (err, results) => {
         if (err || results.length === 0) {
@@ -68,7 +72,7 @@ router.get('/:id', isAuthenticated, (req, res) => {
 // Create new court order
 router.post('/create', isAuthenticated, upload.single('order_file'), (req, res) => {
     const { 
-        order_number, case_title, order_type, issued_date, received_date,
+        case_title, order_type, issued_date, received_date,
         judge_name, court_branch, summary, key_provisions, status, compliance_date 
     } = req.body;
 
@@ -76,12 +80,12 @@ router.post('/create', isAuthenticated, upload.single('order_file'), (req, res) 
 
     db.query(`
         INSERT INTO court_orders 
-        (order_number, case_title, order_type, issued_date, received_date, 
+        (case_title, order_type, issued_date, received_date, 
          judge_name, court_branch, summary, key_provisions, status, 
          compliance_date, file_path, created_by) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
-            order_number, case_title, order_type, issued_date, 
+            case_title, order_type, issued_date, 
             received_date || null, judge_name, court_branch, 
             summary, key_provisions, status || 'Received', 
             compliance_date || null, file_path, req.session.userId
@@ -99,7 +103,7 @@ router.post('/create', isAuthenticated, upload.single('order_file'), (req, res) 
 // Update court order
 router.post('/update/:id', isAuthenticated, upload.single('order_file'), (req, res) => {
     const { 
-        order_number, case_title, order_type, issued_date, received_date,
+        case_title, order_type, issued_date, received_date,
         judge_name, court_branch, summary, key_provisions, status, compliance_date 
     } = req.body;
 
@@ -107,12 +111,12 @@ router.post('/update/:id', isAuthenticated, upload.single('order_file'), (req, r
 
     let query = `
         UPDATE court_orders SET 
-        order_number=?, case_title=?, order_type=?, issued_date=?, 
+        case_title=?, order_type=?, issued_date=?, 
         received_date=?, judge_name=?, court_branch=?, summary=?, 
         key_provisions=?, status=?, compliance_date=?`;
 
     let params = [
-        order_number, case_title, order_type, issued_date, 
+        case_title, order_type, issued_date, 
         received_date || null, judge_name, court_branch, summary, 
         key_provisions, status, compliance_date || null
     ];
@@ -134,7 +138,7 @@ router.post('/update/:id', isAuthenticated, upload.single('order_file'), (req, r
     });
 });
 
-// Delete court order (DELETE method)
+// Delete court order
 router.delete('/delete/:id', isAuthenticated, (req, res) => {
     // First get the file path to delete the actual file
     db.query('SELECT file_path FROM court_orders WHERE id = ?', [req.params.id], (err, results) => {
@@ -160,12 +164,6 @@ router.delete('/delete/:id', isAuthenticated, (req, res) => {
             res.json({ success: true });
         });
     });
-});
-
-// View order - redirect to main page with view parameter
-router.get('/view/:id', isAuthenticated, (req, res) => {
-    // Redirect to main page with view parameter to open view modal
-    res.redirect(`/court-orders?view=${req.params.id}`);
 });
 
 // Download order file
